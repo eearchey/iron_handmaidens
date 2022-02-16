@@ -1,33 +1,19 @@
-## Iron Handmaidens Project Website
+# Iron Handmaidens Project Website
+## Group members: Emily Archey, Josh Hourigan, Sean Macander, Alden Moreton, Vyas Padmanabhan
 
-### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### Project Goals
+1. Have users upload their data via a web interface.
+2. Deliver data visualization to the Iron Hand PhD team.
+3. Stretch: Use ML to predict circumstances under which data was collected (i.e. temperature, presence of Iron Hand).
 
-```markdown
-Syntax highlighted code block
+### Approach
+1. User goes to the Iron Handmaidens website.
+2. User uploads a csv file with data of their choosing.
+3. Our application processes the data in the backend and calculates relationships.
+4. Relationships between data are plotted into an interface the user can see.
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/eearchey/iron_handmaidens/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+### Tools
+1. Django
+2. AWS (SNS, Lightsail?)
+3. Plotly
