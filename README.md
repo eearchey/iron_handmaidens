@@ -5,4 +5,4 @@
 
 ---
 
-This branch is spacifically used to host our repository website
+This branch is specifically used to host our repository website
