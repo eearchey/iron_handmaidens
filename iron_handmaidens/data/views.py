@@ -1,9 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-
-def index(request):
-    return HttpResponse("Hello, world. You're at the data index.")
-
-# making pages
-print('hello')
+def home(request):
+    return render(request, 'data/home.html')
