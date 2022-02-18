@@ -1,5 +1,5 @@
-## Iron Handmaidens
-## Group members: Emily Archey, Josh Hourigan, Sean Macander, Alden Moreton, Vyas Padmanabhan
+### Group members 
+Emily Archey, Josh Hourigan, Sean Macander, Alden Moreton, Vyas Padmanabhan
 
 
 ### Project Goals
