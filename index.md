@@ -1,3 +1,7 @@
+<div align="center">
+  <h1>iron_handmaidens</h1>
+</div>
+
 ### Group members 
 Emily Archey, Josh Hourigan, Sean Macander, Alden Moreton, Vyas Padmanabhan
 
