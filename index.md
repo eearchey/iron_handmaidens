@@ -20,7 +20,7 @@
 4. Pandas
 6. Plotly
 7. AWS (SNS, Lightsail?)
-8. Teachable Machine: https://teachablemachine.withgoogle.com/
+8. [Teachable Machine] (https://teachablemachine.withgoogle.com/)
 
 ### Iron Handmaidens Github
 https://github.com/eearchey/iron_handmaidens
