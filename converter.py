@@ -32,13 +32,13 @@ class Converter():
 
 	def matToCsv(self, infile, outfile=None):
 		if self.filetype not in infile:
-			print(f'Skipping {infile}')
+			print('Skipping'.ljust(20) + infile)
 			return
 
 		try:
 			mat = scipy.io.loadmat(infile)
 		except ValueError:
-			print(f'Unable to convert {infile}')
+			print('Unable to convert'.ljust(20) + infile)
 			print('File could not be loaded as mat')
 			return
 
@@ -51,14 +51,14 @@ class Converter():
 			mat = {key: mat[key].flatten() for key in mat}
 			df = pd.DataFrame.from_dict(mat)
 		except ValueError:
-			print(f'Unable to convert {infile}')
+			print('Unable to convert'.ljust(20) + infile)
 			print('File could not be loaded as df')
 			return
 
 		if outfile is None:
 			outfile = infile.split('.')[0] + '.csv'
 
-		print(f'Saving {outfile}')
+		print('Saving'.ljust(20) + outfile)
 		df.to_csv(infile.split('.')[0]+'.csv', index=False)
 
 
