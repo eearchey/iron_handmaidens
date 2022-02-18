@@ -15,5 +15,15 @@
 
 ### Tools
 1. Django
-2. AWS (SNS, Lightsail?)
-3. Plotly
+2. Python3
+3. Numpy
+4. Pandas
+6. Plotly
+7. AWS (SNS, Lightsail?)
+8. Teachable Machine: https://teachablemachine.withgoogle.com/
+
+### Iron Handmaidens Github
+https://github.com/eearchey/iron_handmaidens
+
+### PhD Github
+https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdrive.google.com%2Fdrive%2Ffolders%2F1KNsi3hQebUxwpAMy21UudcrwSgVdpT_x%3Fusp%3Dsharing&data=04%7C01%7Csmmacander%40crimson.ua.edu%7Caf7d3dae910045020db908d9e59a0603%7C2a00728ef0d040b4a4e8ce433f3fbca7%7C0%7C0%7C637793271964474965%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&sdata=h4p1H1D6Hqg%2FnSmkqxwK%2FpvuYKyfifpqrWtN1ViAlpw%3D&reserved=0
