@@ -54,10 +54,11 @@ class Converter():
 			return
 
 		if outfile is None:
-			outfile = infile.split('.')[0] + '.csv'
+			head, tail = os.path.split(infile)
+			outfile = os.path.join(head, tail.split('.')[0] + '.csv')
 
 		print('Saving'.ljust(20) + outfile)
-		df.to_csv(infile.split('.')[0]+'.csv', index=False)
+		df.to_csv(outfile, index=False)
 
 
 	def convertDir(self, dir, recursive=False):
@@ -68,7 +69,7 @@ class Converter():
 						self.matToCsv(os.path.join(path, file))
 						print()
 		else:
-			files = [os.path.join(self.root, file) for file in os.listdir(dir)]
+			files = [os.path.join(dir, file) for file in os.listdir(dir)]
 			for file in files:
 				self.matToCsv(file)
 				print()
@@ -88,4 +89,4 @@ if __name__ == '__main__':
 		'Shimmer_5470_Event_Marker_CAL':'Event_5470'
 	}
 	converter = Converter('.mat', exclude, rename)
-	converter.convertDir(sys.argv[1], True)
+	converter.convertDir(sys.argv[1], False)
