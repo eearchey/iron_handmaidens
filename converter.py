@@ -1,4 +1,3 @@
-from argparse import FileType
 import scipy.io
 import pandas as pd
 import sys
@@ -7,8 +6,7 @@ import os
 class Converter():
 	version = '1.0.0'
 
-	def __init__(self, root, fileType, labelExclude=None, labelMap=None) -> None:
-		self.root = root
+	def __init__(self, fileType, labelExclude=None, labelMap=None) -> None:
 		self.filetype = fileType
 		self.labelExclude = labelExclude
 		self.labelMap = labelMap
@@ -89,5 +87,5 @@ if __name__ == '__main__':
 		'Shimmer_5470_EMG_CH2_24BIT_CAL':'CH2_5470',
 		'Shimmer_5470_Event_Marker_CAL':'Event_5470'
 	}
-	converter = Converter(sys.argv[1], '.mat', exclude, rename)
+	converter = Converter('.mat', exclude, rename)
 	converter.convertDir(sys.argv[1], True)
