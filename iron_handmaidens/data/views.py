@@ -15,3 +15,6 @@ def home(request):
 
 def visualize(request):
     return render(request, 'data/visualize.html')
+
+def upload(request):
+    return render(request, 'upload.html')
