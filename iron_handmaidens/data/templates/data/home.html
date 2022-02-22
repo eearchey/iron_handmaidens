@@ -2,7 +2,8 @@
 {% block content %}
 <h1>{% block title %}Iron Handmaidens{% endblock %}</h1>
 <div class = "begin">
-    <form action="/process" enctype="multipart/form-data" method="post" >
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
         <br><br>
         <h3>Please begin by uploading your csv file.</h3>
         <br>
