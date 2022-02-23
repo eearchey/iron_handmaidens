@@ -1,47 +1,25 @@
 {% extends "data/base.html" %}
 {% block content %}
-<script src="https://cdn.jsdelivr.net/npm/danfojs@1.0.2/lib/bundle.min.js"></script>
-<h2>visualize</h2>
-<h3>File name: {{ filename }}</h3>
-<table>
-	<tr>
-		<td>
-			{% autoescape off %}
-			{{ table }}
-			{% endautoescape %}
-		</td>
-		<td>
-			<p>{{json}}</p>
-		</td>
-		<td>
-			<div id="plot1" class="plot" style="width:1000px;height:600px;">
-				<script type="text/javascript">
-					console.log('Making graph');
-					let json = "{{ json|safe }}";
-					console.log(json);
-					json = JSON.parse(json);
-					console.log(json);
-					let df = new dfd.DataFrame(json);
-					df.print();
-					df.config['tableMaxRow'] = 2;
-					df.config['tableDisplayConfig'] = {
-						header: {
-							alignment: 'center',
-							content: 'Table from '
-						}
-					};
-					df.print();
-
-					df = df.setIndex({column: 'Timestamp_4680', drop: true});
-					df.plot('plot1').line({
-						config: {
-							columns: ['CH1_4680', 'CH2_4680']
-						}
-					});
-				</script>
-			</div>
-		</td>
-	</tr>
-</table>
+<div align="center">
+	<h2>visualize</h2>
+	<h3>File name: {{ filename }}</h3>
+	<table>
+		<tr>
+			<td>
+				{% autoescape off %}
+				{{ table }}
+				{% endautoescape %}
+			</td>
+			<td>
+				<p>{{json}}</p>
+			</td>
+			<td>
+				{% autoescape off %}
+				{{ plt }}
+				{% endautoescape %}
+			</td>
+		</tr>
+	</table>
+</div>
 <p><a href="{% url 'data-home' %}">Return to home</a></p>
 {% endblock content %}
