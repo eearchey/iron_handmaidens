@@ -1,5 +1,5 @@
 import pandas as pd
-from plotly.offline import plot
+from plotly.offline import plot as plt
 import plotly.express as px
 
 class Preprocess:
@@ -51,7 +51,7 @@ class Preprocess:
 		columns = list(filter(lambda x: name in x, self.df.columns))
 
 		if len(columns) == 0:
-			raise ValueError('Column(s) could not be found')
+			raise ValueError('Column(s) could not be found:' + name)
 
 		return columns
 
@@ -73,9 +73,6 @@ class Preprocess:
 		df = df.drop(other['Timestamp'], axis=1)
 
 		return Preprocess(df, self.period)
-
-	def absoluteValue(self, series):
-		return abs(self.df[series])
 
 	def RMS(self):
 		pass
@@ -99,18 +96,46 @@ class Preprocess:
 
 		return newDf
 
-	def plot(self, x=None, y=None, cap=None):
+	def normalize(self, channels=None):
+		if channels is None:
+			channels = self.findColumns('CH')
+
+		for channel in channels:
+			max = self.df[channel].max()
+			min = self.df[channel].min()
+			self.df[channel] = (self.df[channel] - min) / (max - min)
+
+	def quartiles(self, q=[0.9, 0.5, 0.1], columns=None):
+		if columns is None:
+			columns = self.findColumns('CH')
+
+		return self.df[columns].quantile(q)
+
+	def figure(self, x=None, y=None, slice=None):
 		if x is None:
-			x = self['Timestamp']
+			try:
+				x = self['Elapse']
+			except ValueError as err:
+				x = self['Timestamp']
 		if y is None:
 			y = self.findColumns('CH')
-		if cap is None:
-			cap = len(self.df)
+		if slice is None:
+			slice = slice(None)
 
-		fig = px.line(self.df[:cap], x, y)
-		plt = plot(fig, output_type='div')
+		return px.line(self.df.iloc[slice], x, y)
 
-		return plt
+	def plot(self, fig=None, x=None, y=None, slice=None):
+		if fig is not None:
+			return plt(fig, output_type='div')
+
+		fig = self.figure(x, y, slice)
+
+		return plt(fig, output_type='div')
+
+	def run(self):
+		self.df['Elapse'] = self.df.index * self.frequency
+		self.normalize()
+		return self.figure(slice=slice(None, None, 100))
 
 if __name__ == '__main__':
 	print('No main function')
