@@ -11,10 +11,8 @@ def home(request):
         csv_file = request.FILES['csv-file']
 
         df = pd.read_csv(csv_file)
-        print(df)
         filename = csv_file.name
-        json = df[:1].to_json()
-        print(json)
+        json = df[:500].to_json(orient='records')
 
         return render(request, 'data/visualize.html', {'filename': filename, 'table': df[:20].to_html(), 'json': json})
     return render(request, 'data/home.html')
