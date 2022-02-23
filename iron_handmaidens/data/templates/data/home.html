@@ -1,0 +1,63 @@
+{% extends "data/base.html" %}
+{% block content %}
+<h1>{% block title %}Iron Handmaidens{% endblock %}</h1>
+<div class = "begin">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <br><br>
+        <h3>Please begin by uploading your csv file.</h3>
+        <br>
+        <div class = "form-group">
+            <input type="button" id="uploadFile" value="Upload File" onclick="document.getElementById('csv-file').click();"/>
+            <input type="file" style="display:none;" id="csv-file" name="csv-file" accept=".csv">
+            <br><br>
+            <h4 id="file-names">No files selected yet.</h4>
+        </div>
+        <div class = "go form-group">
+            <br>
+            <h3>Once your file has been attached, click Submit.</h3>
+            <button id="advance" type="submit" onclick="thanks()" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>
+
+<div class = "thanks">
+    <h3>Thank you for uploading the file!</h3>
+</div>
+
+<script type = "text/javascript">
+    let x = document.getElementsByClassName("thanks");
+    for (let i = 0; i < x.length; i++) {
+        x[i].style.display = 'none';
+    }
+    x = document.getElementsByClassName("go");
+    for (i = 0; i < x.length; i++) {
+        x[i].style.display = 'none';
+    }
+    let input = document.getElementById('csv-file');
+    let file_names = document.getElementById('file-names');
+    input.addEventListener('change', showFileName);
+    function showFileName(event) {
+        let input = event.srcElement;
+        file_names.innerHTML = "Files: <br />";
+        for (let j = 0; j < input.files.length; j++) {
+            let fileName = input.files[j].name;
+            file_names.innerHTML += fileName + "<br />";
+        }
+        let y = document.getElementsByClassName("go");
+        for (j = 0; j < y.length; j++) {
+            y[j].style.display = 'block';
+        }
+    }
+    function thanks() {
+        let y = document.getElementsByClassName("begin");
+        for (let j = 0; j < y.length; j++) {
+            y[j].style.display = 'none';
+        }
+        y = document.getElementsByClassName("thanks");
+        for (j = 0; j < y.length; j++) {
+            y[j].style.display = 'block';
+        }
+    }
+</script>
+{% endblock content %}
