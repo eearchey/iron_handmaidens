@@ -13,7 +13,6 @@ def home(request):
         csv_file = request.FILES['csv-file']
 
         df = pd.read_csv(csv_file)
-        print(df)
         filename = csv_file.name
 
         fig = px.line(df[:1000], 'Timestamp_4680', ['CH1_4680', 'CH2_4680'])
