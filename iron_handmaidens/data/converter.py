@@ -51,7 +51,7 @@ class Converter():
 
 		try:
 			mat = scipy.io.loadmat(infile)
-		except ValueError:
+		except ValueError as err:
 			print('Unable to convert'.ljust(20) + infile)
 			print('File could not be loaded as mat')
 			return
@@ -64,7 +64,7 @@ class Converter():
 		try:
 			mat = {key: mat[key].flatten() for key in mat}
 			df = pd.DataFrame.from_dict(mat)
-		except ValueError:
+		except ValueError as err:
 			print('Unable to convert'.ljust(20) + infile)
 			print('File could not be loaded as df')
 			return
