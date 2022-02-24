@@ -6,14 +6,11 @@
 	<table>
 		<tr>
 			<td>
-				{% autoescape off %}
-				{{ table }}
-				{% endautoescape %}
+				<h1 align="center">Quartiles</h1>
+				{{ table | safe }}
 			</td>
 			<td>
-				{% autoescape off %}
-				{{ plt }}
-				{% endautoescape %}
+				{{ plt | safe }}
 			</td>
 		</tr>
 	</table>

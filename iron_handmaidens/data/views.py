@@ -11,10 +11,11 @@ def home(request):
         csv_file = request.FILES['csv-file']
 
         data = Preprocess.read_csv(csv_file)
+        data.run()
 
         filename = csv_file.name
-        table = data.df[:20].to_html()
-        plt = data.plot(cap=100000)
+        table = data.quartiles().to_html()
+        plt = data.plot(idxs=slice(None, None, 100))
 
         return render(request, 'data/visualize.html', {'filename': filename, 'table': table, 'plt': plt})
     return render(request, 'data/home.html')

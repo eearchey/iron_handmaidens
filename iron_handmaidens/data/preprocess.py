@@ -1,5 +1,5 @@
 import pandas as pd
-from plotly.offline import plot as plt
+from plotly.offline import plot as plotlyPlot
 import plotly.express as px
 
 class Preprocess:
@@ -7,8 +7,9 @@ class Preprocess:
 	Group of operations commonly done to file in order to prepare it to be rendered
 	"""
 
-	def __init__(self, df=pd.DataFrame(), period=None, frequency=None):
+	def __init__(self, df, period: float=None, frequency: float=None):
 		self.df = df
+
 		if period is not None:
 			self.period = period
 		elif frequency is not None:
@@ -22,7 +23,7 @@ class Preprocess:
 	def __str__(self) -> str:
 		return self.df.head().to_string()
 
-	def __getitem__(self, idx):
+	def __getitem__(self, idx: str) -> str:
 		columns = self.findColumns(idx)
 
 		if len(columns) != 1:
@@ -30,11 +31,11 @@ class Preprocess:
 
 		return columns[0]
 
-	def __add__(self, other):
+	def __add__(self, other: object):
 		return self.merge(other)
 
 	@classmethod
-	def read_csv(cls, csv, period=1024) -> object:
+	def read_csv(cls, csv: str or object, period: float=1024) -> object:
 		df = pd.read_csv(csv)
 
 		return cls(df, period)
@@ -44,10 +45,10 @@ class Preprocess:
 		return (1/self.period)
 
 	@frequency.setter
-	def frequency(self, val):
+	def frequency(self, val: float):
 		self.period = (1/val)
 
-	def findColumns(self, name):
+	def findColumns(self, name: str):
 		columns = list(filter(lambda x: name in x, self.df.columns))
 
 		if len(columns) == 0:
@@ -55,7 +56,7 @@ class Preprocess:
 
 		return columns
 
-	def merge(self, other):
+	def merge(self, other: object):
 		if type(other) != Preprocess:
 			raise TypeError('Trying to add something other than another dataframe')
 		elif self.period != other.period:
@@ -72,7 +73,7 @@ class Preprocess:
 		df = df.drop(self['Timestamp'], axis=1)
 		df = df.drop(other['Timestamp'], axis=1)
 
-		return Preprocess(df, self.period)
+		return Preprocess(df, period=self.period)
 
 	def RMS(self):
 		pass
@@ -105,13 +106,13 @@ class Preprocess:
 			min = self.df[channel].min()
 			self.df[channel] = (self.df[channel] - min) / (max - min)
 
-	def quartiles(self, q=[0.9, 0.5, 0.1], columns=None):
+	def quartiles(self, q: list=[0.9, 0.5, 0.1], columns: list=None):
 		if columns is None:
 			columns = self.findColumns('CH')
 
 		return self.df[columns].quantile(q)
 
-	def figure(self, x=None, y=None, slice=None):
+	def figure(self, x: str or list=None, y: str or list=None, idxs: int or slice=None):
 		if x is None:
 			try:
 				x = self['Elapse']
@@ -119,23 +120,24 @@ class Preprocess:
 				x = self['Timestamp']
 		if y is None:
 			y = self.findColumns('CH')
-		if slice is None:
-			slice = slice(None)
+		if idxs is None:
+			idxs = slice(None)
+		elif type(idxs) == int:
+			idxs = slice(idxs)
 
-		return px.line(self.df.iloc[slice], x, y)
+		return px.line(self.df.iloc[idxs], x, y)
 
-	def plot(self, fig=None, x=None, y=None, slice=None):
+	def plot(self, fig: object=None, x: list or str=None, y: list or str=None, idxs: int or slice=None):
 		if fig is not None:
-			return plt(fig, output_type='div')
+			return plotlyPlot(fig, output_type='div')
 
-		fig = self.figure(x, y, slice)
+		fig = self.figure(x, y, idxs)
 
-		return plt(fig, output_type='div')
+		return plotlyPlot(fig, output_type='div')
 
 	def run(self):
-		self.df['Elapse'] = self.df.index * self.frequency
+		self.df['Elapse'] = self.df.index * self.frequency * (1/60)
 		self.normalize()
-		return self.figure(slice=slice(None, None, 100))
 
 if __name__ == '__main__':
 	print('No main function')
