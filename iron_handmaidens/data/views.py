@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 import csv
 import io
+
 import time
 
 from data.preprocess import Preprocess
@@ -22,6 +23,7 @@ def home(request):
         end = time.time()
         print(f'Spent {end-start} seconds in the backend')
         return render(request, 'data/visualize.html', {'filename': filename, 'table': table, 'plt': plt})
+
     return render(request, 'data/home.html')
 
 def visualize(request):
