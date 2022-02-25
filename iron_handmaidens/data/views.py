@@ -17,7 +17,7 @@ def home(request):
 
         filename = csv_file.name
         table = data.quartiles().to_html()
-        plt = data.plot()
+        plt = data.plot(visible=data.find_columns('Moving'))
 
         end = time.time()
         print(f'Spent {end-start} seconds in the backend')

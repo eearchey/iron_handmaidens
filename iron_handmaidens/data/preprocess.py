@@ -121,8 +121,7 @@ class Preprocess:
 
 		return self.df[columns].quantile(q)
 
-	def figure(self, x: str or list=None, y: str or list=None, main: str=None):
-		visible = True
+	def figure(self, x: str or list=None, y: str or list=None, visible: str=None):
 		if x is None:
 			try:
 				x = self['Elapse']
@@ -132,21 +131,18 @@ class Preprocess:
 		if y is None:
 			y = self.find_columns(['RMS', 'Moving Average', 'CH'])
 
-		if main is not None:
-			visible = 'legendonly'
-
 		fig = go.Figure()
 
 		for line in y:
 			newFig = go.Scatter(
 				x=self.df[x].iloc[self.idxs],
 				y=self.df[line].iloc[self.idxs],
-				name=line,
-				visible=visible
+				name=line
 			)
 			fig.add_trace(newFig)
-		if visible is not True:
-			fig.for_each_trace(lambda trace: trace.update(visible=True) if trace.name == main else ())
+
+		if visible is not None:
+			fig.for_each_trace(lambda trace: trace.update(visible=True) if trace.name in visible else trace.update(visible='legendonly'))
 
 		fig.update_layout(
 			title="EMG Data",
@@ -162,11 +158,11 @@ class Preprocess:
 
 		return fig
 
-	def plot(self, fig: object=None, x: list or str=None, y: list or str=None, main=None):
+	def plot(self, fig: object=None, x: list or str=None, y: list or str=None, visible=None):
 		if fig is not None:
 			return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
-		fig = self.figure(x, y, main)
+		fig = self.figure(x, y, visible)
 
 		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
