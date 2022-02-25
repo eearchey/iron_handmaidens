@@ -1,19 +1,11 @@
 {% extends "data/base.html" %}
 {% block content %}
+<script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
 <div align="center">
 	<h2>visualize</h2>
 	<h3>File name: {{ filename }}</h3>
-	<table>
-		<tr>
-			<td>
-				<h1 align="center">Quartiles</h1>
-				{{ table | safe }}
-			</td>
-			<td>
-				{{ plt | safe }}
-			</td>
-		</tr>
-	</table>
+	{{ table | safe }}
+	{{ plt | safe }}
 </div>
 <p><a href="{% url 'data-home' %}">Return to home</a></p>
 {% endblock content %}
