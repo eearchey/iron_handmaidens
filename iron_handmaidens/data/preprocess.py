@@ -1,13 +1,14 @@
 import pandas as pd
-from plotly.offline import plot as plotlyPlot
-import plotly.express as px
+import plotly.graph_objs as go
+# import plotly.express as px
+from plotly.offline import plot as plotly_plot
 
 class Preprocess:
 	"""
 	Group of operations commonly done to file in order to prepare it to be rendered
 	"""
 
-	def __init__(self, df, period: float=None, frequency: float=None):
+	def __init__(self, df, period: float=None, frequency: float=None, maxDataPoints=1000):
 		self.df = df
 
 		if period is not None:
@@ -17,6 +18,8 @@ class Preprocess:
 		else:
 			self.period = 1024
 
+		self.maxDataPoints = maxDataPoints
+
 	def __repr__(self) -> str:
 		return f'Preprocess(DataFrame, {self.period}, {self.frequency})'
 
@@ -24,7 +27,7 @@ class Preprocess:
 		return self.df.head().to_string()
 
 	def __getitem__(self, idx: str) -> str:
-		columns = self.findColumns(idx)
+		columns = self.find_columns(idx)
 
 		if len(columns) != 1:
 			raise ValueError('More than one column found')
@@ -35,21 +38,30 @@ class Preprocess:
 		return self.merge(other)
 
 	@classmethod
-	def read_csv(cls, csv: str or object, period: float=1024) -> object:
+	def read_csv(cls, csv: str or object, period: float=1024):
 		df = pd.read_csv(csv)
 
 		return cls(df, period)
 
 	@property
-	def frequency(self):
+	def frequency(self) -> float:
 		return (1/self.period)
 
 	@frequency.setter
 	def frequency(self, val: float):
 		self.period = (1/val)
 
-	def findColumns(self, name: str):
-		columns = list(filter(lambda x: name in x, self.df.columns))
+	@property
+	def idxs(self) -> slice:
+		return slice(None, None, len(self.df) // self.maxDataPoints)
+
+	def find_columns(self, names: str or list) -> list:
+		if type(names) != list:
+			names = [names]
+
+		columns = []
+		for name in names:
+			columns += list(filter(lambda x: name in x, self.df.columns))
 
 		if len(columns) == 0:
 			raise ValueError('Column(s) could not be found:' + name)
@@ -75,31 +87,28 @@ class Preprocess:
 
 		return Preprocess(df, period=self.period)
 
+	def bandpassing(self):
+		pass
+
 	def RMS(self):
 		pass
 
 	def butterworth(self):
 		pass
 
-	def movingAverage(self, series, window=30):
-		newDf = pd.DataFrame()
+	def moving_average(self, colNames, window=7000):
+		if type(colNames) != list:
+			colNames = [colNames]
 
-		if 'Time' in self.df:
-			newDf['Time'] = self.df['Time']
-		elif 'Timestamp_4680' in self.df:
-			newDf['Time'] = self.df['Timestamp_4680']
-		elif 'Timestamp_5470' in self.df:
-			newDf['Time'] = self.df['Timestamp_5470']
-		else:
-			raise ValueError('Could not find timestamp in' + self.df)
+		df = pd.DataFrame()
+		for col in colNames:
+			df[col] = self.df[col].rolling(window).mean()
 
-		newDf['Moving Average'] = self.df[series].rolling(window).mean()
-
-		return newDf
+		return df
 
 	def normalize(self, channels=None):
 		if channels is None:
-			channels = self.findColumns('CH')
+			channels = self.find_columns('CH')
 
 		for channel in channels:
 			max = self.df[channel].max()
@@ -108,36 +117,66 @@ class Preprocess:
 
 	def quartiles(self, q: list=[0.9, 0.5, 0.1], columns: list=None):
 		if columns is None:
-			columns = self.findColumns('CH')
+			columns = self.find_columns('CH')
 
 		return self.df[columns].quantile(q)
 
-	def figure(self, x: str or list=None, y: str or list=None, idxs: int or slice=None):
+	def figure(self, x: str or list=None, y: str or list=None, main: str=None):
+		visible = True
 		if x is None:
 			try:
 				x = self['Elapse']
 			except ValueError as err:
 				x = self['Timestamp']
+
 		if y is None:
-			y = self.findColumns('CH')
-		if idxs is None:
-			idxs = slice(None)
-		elif type(idxs) == int:
-			idxs = slice(idxs)
+			y = self.find_columns(['RMS', 'Moving Average', 'CH'])
 
-		return px.line(self.df.iloc[idxs], x, y)
+		if main is not None:
+			visible = 'legendonly'
 
-	def plot(self, fig: object=None, x: list or str=None, y: list or str=None, idxs: int or slice=None):
+		fig = go.Figure()
+
+		for line in y:
+			newFig = go.Scatter(
+				x=self.df[x].iloc[self.idxs],
+				y=self.df[line].iloc[self.idxs],
+				name=line,
+				visible=visible
+			)
+			fig.add_trace(newFig)
+		if visible is not True:
+			fig.for_each_trace(lambda trace: trace.update(visible=True) if trace.name == main else ())
+
+		fig.update_layout(
+			title="EMG Data",
+			xaxis_title=x,
+			yaxis_title="Normalized Values",
+			legend_title="Data Source",
+			# font=dict(
+			# 	family="Courier New, monospace",
+			# 	size=18,
+			# 	color="RebeccaPurple"
+			# )
+		)
+
+		return fig
+
+	def plot(self, fig: object=None, x: list or str=None, y: list or str=None, main=None):
 		if fig is not None:
-			return plotlyPlot(fig, output_type='div')
+			return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
-		fig = self.figure(x, y, idxs)
+		fig = self.figure(x, y, main)
 
-		return plotlyPlot(fig, output_type='div')
+		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
 	def run(self):
-		self.df['Elapse'] = self.df.index * self.frequency * (1/60)
+		channels = self.find_columns('CH')
+
 		self.normalize()
+		self.df['Elapse (s)'] = self.df.index * self.frequency
+		self.df[['Moving Average ' + channel[2:] for channel in channels]] = self.moving_average(channels)
+
 
 if __name__ == '__main__':
 	print('No main function')
