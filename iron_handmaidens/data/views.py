@@ -1,33 +1,36 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 import csv
 import io
 
-import time
+from data.src.emg import EMGData
 
-from data.preprocess import Preprocess
+data = None
 
 def home(request):
+    global data
     if request.method == 'POST' and request.FILES['csv-file']:
-        start = time.time()
         csv_file = request.FILES['csv-file']
 
-        data = Preprocess.read_csv(csv_file)
-        data.run()
+        if data is None:
+            data = EMGData.read_csv(csv_file).preprocess()
+        else:
+            data = data + EMGData.read_csv(csv_file).preprocess()
 
-        filename = csv_file.name
-        table = data.quartiles().to_html()
-        plt = data.plot()
-
-        end = time.time()
-        print(f'Spent {end-start} seconds in the backend')
-        return render(request, 'data/visualize.html', {'filename': filename, 'table': table, 'plt': plt})
+        return redirect('visualize/')
 
     return render(request, 'data/home.html')
 
 def visualize(request):
-    return render(request, 'data/visualize.html')
+    global data
+    if data is None:
+        return redirect('data-home')
+
+    table = data.quartiles().to_html()
+    plt = data.plot(visible=data.find_columns('Moving'))
+
+    return render(request, 'data/visualize.html', {'table': table, 'plt': plt})
 
 def upload(request):
     return render(request, 'upload.html')
