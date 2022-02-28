@@ -51,7 +51,7 @@ class EMGData:
 	@classmethod
 	def read_mat(cls, mat:object, period: float=1024):
 		df = Converter().mat_to_df(mat)
-
+		df = df.astype(float)
 		return cls(df, period=period)
 
 	@property
