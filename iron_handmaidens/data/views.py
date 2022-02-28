@@ -24,7 +24,7 @@ def home(request):
             if data == None:
                 data = newData
             else:
-                data = data + newData
+                data += newData
 
         return redirect('visualize/')
     data = None

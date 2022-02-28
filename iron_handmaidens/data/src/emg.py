@@ -201,7 +201,7 @@ class EMGData:
 		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
 	def preprocess(self):
-		new = EMGData(pd.DataFrame(), period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
+		new = EMGData(self.df.copy(), period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
 
 		channels = self[['CH']]
 
