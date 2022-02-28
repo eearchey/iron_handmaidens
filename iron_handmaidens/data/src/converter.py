@@ -28,14 +28,14 @@ class Converter():
 		self.labelExclude = labelExclude
 		self.labelMap = labelMap
 
-	def excludeKeys(self, oldDict: dict) -> dict:
+	def exclude_keys(self, oldDict: dict) -> dict:
 		newDict = {}
 		for key in oldDict:
 			if key not in self.labelExclude:
 				newDict[key] = oldDict[key]
 		return newDict
 
-	def renameKeys(self, oldDict: dict) -> dict:
+	def rename_keys(self, oldDict: dict) -> dict:
 		newDict = {}
 		for key in oldDict:
 			if key in self.labelMap:
@@ -44,8 +44,8 @@ class Converter():
 				newDict[key] = oldDict[key]
 		return newDict
 
-	def matToCSV(self, infile: str, outfile: str=None) -> None:
-		if self.filetype not in infile:
+	def mat_to_df(self, infile: str) -> None:
+		if self.filetype not in infile and type(infile) == str:
 			print('Skipping'.ljust(20) + infile)
 			return
 
@@ -57,9 +57,9 @@ class Converter():
 			return
 
 		if self.labelExclude is not None:
-			mat = self.excludeKeys(mat)
+			mat = self.exclude_keys(mat)
 		if self.labelMap is not None:
-			mat = self.renameKeys(mat)
+			mat = self.rename_keys(mat)
 
 		try:
 			mat = {key: mat[key].flatten() for key in mat}
@@ -69,6 +69,11 @@ class Converter():
 			print('File could not be loaded as df')
 			return
 
+		return df
+
+	def mat_to_csv(self, infile: str, outfile: str=None):
+		df = self.mat_to_df(infile)
+
 		if outfile is None:
 			head, tail = os.path.split(infile)
 			outfile = os.path.join(head, tail.split('.')[0] + '.csv')
@@ -77,19 +82,19 @@ class Converter():
 		df.to_csv(outfile, index=False)
 
 
-	def dirToCSV(self, dir: str, recursive: bool=False) -> None:
+	def dir_to_csv(self, dir: str, recursive: bool=False) -> None:
 		if recursive:
 			for (path, dirs, files) in os.walk(dir):
 				for file in files:
 					if file[0] != '.':
-						self.matToCSV(os.path.join(path, file))
+						self.mat_to_csv(os.path.join(path, file))
 
 		else:
 			files = [os.path.join(dir, file) for file in os.listdir(dir)]
 			for file in files:
-				self.matToCSV(file)
+				self.mat_to_csv(file)
 
 if __name__ == '__main__':
 	from sys import argv
 	converter = Converter()
-	converter.dirToCSV(argv[1])
+	converter.dir_to_csv(argv[1])

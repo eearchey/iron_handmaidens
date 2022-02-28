@@ -2,6 +2,8 @@ import pandas as pd
 import plotly.graph_objs as go
 from plotly.offline import plot as plotly_plot
 
+from data.src.converter import Converter
+
 class EMGData:
 	"""
 	Group of operations commonly done to file in order to prepare it to be rendered
@@ -44,7 +46,13 @@ class EMGData:
 	def read_csv(cls, csv: str or object, period: float=1024):
 		df = pd.read_csv(csv)
 
-		return cls(df, period)
+		return cls(df, period=period)
+
+	@classmethod
+	def read_mat(cls, mat:object, period: float=1024):
+		df = Converter().mat_to_df(mat)
+
+		return cls(df, period=period)
 
 	@property
 	def frequency(self) -> float:
@@ -56,6 +64,8 @@ class EMGData:
 
 	@property
 	def idxs(self) -> slice:
+		if len(self.df) < self.maxDataPoints:
+			return slice(None)
 		return slice(None, None, len(self.df) // self.maxDataPoints)
 
 	@property
@@ -81,7 +91,7 @@ class EMGData:
 		elif self.period != other.period:
 			raise ValueError('Samples collected with different frequency/period')
 
-		left, right = self.df, other.df
+		left, right = self.df.copy(), other.df.copy()
 		for df, obj in [(left, self), (right, other)]:
 			df[obj['Timestamp']] = df[obj['Timestamp']].astype(int)
 			df = df.drop_duplicates(obj['Timestamp'])
@@ -91,11 +101,11 @@ class EMGData:
 
 		try:
 			timestamps = new[['Timestamp']]
-		except ValueError:
+		except ValueError as err:
 			timestamps = []
 		try:
 			elapses = new[['Elapse']]
-		except ValueError:
+		except ValueError as err:
 			elapses = []
 
 		for colType, colName in [(timestamps, 'Timestamp'), (elapses, 'Elapse')]:
@@ -116,25 +126,30 @@ class EMGData:
 		pass
 
 	def moving_average(self, colNames):
+		new = pd.DataFrame()
+
 		if type(colNames) != list:
 			colNames = [colNames]
 
-		df = pd.DataFrame()
 		for col in colNames:
-			df[col] = self.df[col].rolling(self.windowLength).mean()
+			new[col] = self.df[col].rolling(self.windowLength).mean()
 
-		return df
+		return new
 
-	def normalize(self, channels=None):
-		if channels is None:
-			channels = self[['CH']]
+	def normalize(self, colNames):
+		new = pd.DataFrame()
 
-		for channel in channels:
-			max = self.df[channel].max()
-			min = self.df[channel].min()
-			self.df[channel] = (self.df[channel] - min) / (max - min)
+		if type(colNames) is not list:
+			colNames = [colNames]
 
-	def quartiles(self, q: list=[0.9, 0.5, 0.1], columns: list=None):
+		for col in colNames:
+			max = self.df[col].max()
+			min = self.df[col].min()
+			new[col] = (self.df[col] - min) / (max - min)
+
+		return new
+
+	def quartiles(self, q: list or float=[0.9, 0.5, 0.1], columns: list or str=None):
 		if columns is None:
 			columns = self[['CH']]
 
@@ -186,13 +201,15 @@ class EMGData:
 		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
 	def preprocess(self):
+		new = EMGData(pd.DataFrame(), period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
+
 		channels = self[['CH']]
 
-		self.normalize()
-		self.df['Elapse (s)'] = self.df.index * self.frequency
-		self.df[['Moving Average ' + channel[2:] for channel in channels]] = self.moving_average(channels)
+		new.df[channels] = self.normalize(channels)
+		new.df['Elapse (s)'] = new.df.index * new.frequency
+		new.df[['Moving Average ' + channel[2:] for channel in channels]] = new.moving_average(channels)
 
-		return self
+		return new
 
 
 if __name__ == '__main__':
