@@ -1,3 +1,4 @@
+import queue
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
@@ -11,15 +12,22 @@ data = None
 def home(request):
     global data
     if request.method == 'POST' and request.FILES['csv-file']:
-        csv_file = request.FILES['csv-file']
+        files = request.FILES.getlist('csv-file')
 
-        if data is None:
-            data = EMGData.read_csv(csv_file).preprocess()
-        else:
-            data = data + EMGData.read_csv(csv_file).preprocess()
+        for file in files:
+            fileExtension = file.name.split('.')[1]
+            if fileExtension == 'csv':
+                newData = EMGData.read_csv(file)
+            elif fileExtension == 'mat':
+                newData = EMGData.read_mat(file)
+
+            if data == None:
+                data = newData
+            else:
+                data = data + newData
 
         return redirect('visualize/')
-
+    data = None
     return render(request, 'data/home.html')
 
 def visualize(request):
@@ -28,9 +36,10 @@ def visualize(request):
         return redirect('data-home')
 
     table = data.quartiles().to_html()
-    plt = data.plot(visible=data.find_columns('Moving'))
+    preprocessed = data.preprocess()
+    plt = preprocessed.plot(visible=preprocessed[['Moving']])
 
     return render(request, 'data/visualize.html', {'table': table, 'plt': plt})
 
 def upload(request):
-    return render(request, 'upload.html')
+    return render(request, 'data/upload.html')
