@@ -1,5 +1,5 @@
 <div align="center">
-	<h2>Iron_Handmaidens</h2>
+	<h2>Iron Handmaidens</h2>
 	<h3>CS 495 Spring 2022 Project</h3>
 </div>
 <div align="left">
