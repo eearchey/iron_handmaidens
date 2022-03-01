@@ -220,8 +220,6 @@ class EMGData:
 		new.df[['Moving Average ' + channel[2:] for channel in channels]] = new.moving_average(channels)
 		new.df[['RMS ' + channel[2:] for channel in channels]] = new.RMS(channels, 100)
 
-		print(new.df.head(), new.df.tail())
-
 		return new
 
 
