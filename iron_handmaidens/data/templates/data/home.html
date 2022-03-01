@@ -1,15 +1,42 @@
 {% extends "data/base.html" %}
 {% block content %}
+<style>
+    h1 {
+        color:#1A73E8;
+        text-align: center;
+        font-family: AlteHaasGroteskBold;
+    }
+    h3 {
+        text-align: center;
+        font-family: AlteHaasGroteskBold;
+    }
+    h4 {
+        text-align: center;
+        font-family: AlteHaasGroteskBold;
+    }
+    input[type="button"] {
+        background-color: #4285F4;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-family: AlteHaasGroteskBold;
+        padding: 14px 40px;
+    }
+    div {
+        text-align: center;
+    }
+</style>
 <h1>{% block title %}Iron Handmaidens{% endblock %}</h1>
 <div class = "begin">
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <br><br>
-        <h3>Please begin by uploading your csv file.</h3>
+        <h3>Please begin by uploading your csv or mat file.</h3>
         <br>
         <div class = "form-group">
             <input type="button" id="uploadFile" value="Upload File" onclick="document.getElementById('csv-file').click();"/>
-            <input type="file" style="display:none;" id="csv-file" name="csv-file" accept=".csv">
+            <input type="file" style="display:none;" id="csv-file" name="csv-file" accept=".csv, .mat" multiple="true">
             <br><br>
             <h4 id="file-names">No files selected yet.</h4>
         </div>

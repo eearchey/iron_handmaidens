@@ -120,7 +120,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, '/iron_handmaidens/data/static/main.css')
+    os.path.join(BASE_DIR, 'data/static/')
 ]
 STATIC_URL = '/static/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
