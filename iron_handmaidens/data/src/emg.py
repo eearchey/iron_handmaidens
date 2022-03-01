@@ -2,8 +2,6 @@ import pandas as pd
 import plotly.graph_objs as go
 from plotly.offline import plot as plotly_plot
 
-from data.src.converter import Converter
-
 class EMGData:
 	"""
 	Group of operations commonly done to file in order to prepare it to be rendered
@@ -46,13 +44,7 @@ class EMGData:
 	def read_csv(cls, csv: str or object, period: float=1024):
 		df = pd.read_csv(csv)
 
-		return cls(df, period=period)
-
-	@classmethod
-	def read_mat(cls, mat:object, period: float=1024):
-		df = Converter().mat_to_df(mat)
-		df = df.astype(float)
-		return cls(df, period=period)
+		return cls(df, period)
 
 	@property
 	def frequency(self) -> float:
@@ -64,8 +56,6 @@ class EMGData:
 
 	@property
 	def idxs(self) -> slice:
-		if len(self.df) < self.maxDataPoints:
-			return slice(None)
 		return slice(None, None, len(self.df) // self.maxDataPoints)
 
 	@property
@@ -91,7 +81,7 @@ class EMGData:
 		elif self.period != other.period:
 			raise ValueError('Samples collected with different frequency/period')
 
-		left, right = self.df.copy(), other.df.copy()
+		left, right = self.df, other.df
 		for df, obj in [(left, self), (right, other)]:
 			df[obj['Timestamp']] = df[obj['Timestamp']].astype(int)
 			df = df.drop_duplicates(obj['Timestamp'])
@@ -101,11 +91,11 @@ class EMGData:
 
 		try:
 			timestamps = new[['Timestamp']]
-		except ValueError as err:
+		except ValueError:
 			timestamps = []
 		try:
 			elapses = new[['Elapse']]
-		except ValueError as err:
+		except ValueError:
 			elapses = []
 
 		for colType, colName in [(timestamps, 'Timestamp'), (elapses, 'Elapse')]:
@@ -116,50 +106,35 @@ class EMGData:
 
 		return new
 
-	def bandpassing(self, colNames):
+	def bandpassing(self):
 		pass
 
-	def RMS(self, colNames, slidingWindow):
-		new = pd.DataFrame()
-
-		if type(colNames) != list:
-			colNames = [colNames]
-
-		for col in colNames:
-			new[col] = self.df[col] ** 2    #Square terms
-			new[col] = new[col].rolling(int((slidingWindow/1000.0)//self.frequency)).mean()  #Calculate mean over slidingWindow
-			new[col] = new[col] ** (1/2)      #Calculate square roots
-
-		return new
+	def RMS(self):
+		pass
 
 	def butterworth(self):
 		pass
 
 	def moving_average(self, colNames):
-		new = pd.DataFrame()
-
 		if type(colNames) != list:
 			colNames = [colNames]
 
+		df = pd.DataFrame()
 		for col in colNames:
-			new[col] = self.df[col].rolling(self.windowLength).mean()
+			df[col] = self.df[col].rolling(self.windowLength).mean()
 
-		return new
+		return df
 
-	def normalize(self, colNames):
-		new = pd.DataFrame()
+	def normalize(self, channels=None):
+		if channels is None:
+			channels = self[['CH']]
 
-		if type(colNames) is not list:
-			colNames = [colNames]
+		for channel in channels:
+			max = self.df[channel].max()
+			min = self.df[channel].min()
+			self.df[channel] = (self.df[channel] - min) / (max - min)
 
-		for col in colNames:
-			max = self.df[col].max()
-			min = self.df[col].min()
-			new[col] = (self.df[col] - min) / (max - min)
-
-		return new
-
-	def quartiles(self, q: list or float=[0.9, 0.5, 0.1], columns: list or str=None):
+	def quartiles(self, q: list=[0.9, 0.5, 0.1], columns: list=None):
 		if columns is None:
 			columns = self[['CH']]
 
@@ -211,19 +186,13 @@ class EMGData:
 		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
 	def preprocess(self):
-		new = EMGData(self.df.copy(), period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
-
 		channels = self[['CH']]
 
-		new.df['Elapse (s)'] = new.df.index * new.frequency
+		self.normalize()
+		self.df['Elapse (s)'] = self.df.index * self.frequency
+		self.df[['Moving Average ' + channel[2:] for channel in channels]] = self.moving_average(channels)
 
-		new.df[['Moving Average ' + channel[2:] for channel in channels]] = new.moving_average(channels)
-		new.df[['RMS ' + channel[2:] for channel in channels]] = new.RMS(channels, 100)
-
-		lines = new[['RMS', 'Moving', 'CH']]
-		new.df[lines] = new.normalize(lines)
-
-		return new
+		return self
 
 
 if __name__ == '__main__':
