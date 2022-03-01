@@ -116,11 +116,21 @@ class EMGData:
 
 		return new
 
-	def bandpassing(self):
+	def bandpassing(self, colNames):
 		pass
 
-	def RMS(self):
-		pass
+	def RMS(self, colNames, slidingWindow):
+		new = pd.DataFrame()
+
+		if type(colNames) != list:
+			colNames = [colNames]
+
+		for col in colNames:
+			new[col] = self.df[col] ** 2    #Square terms
+			new[col] = new[col].rolling(int((slidingWindow/1000.0)//self.frequency)).mean()  #Calculate mean over slidingWindow
+			new[col] = new[col] ** (1/2)      #Calculate square roots
+
+		return new
 
 	def butterworth(self):
 		pass
@@ -208,6 +218,9 @@ class EMGData:
 		new.df[channels] = self.normalize(channels)
 		new.df['Elapse (s)'] = new.df.index * new.frequency
 		new.df[['Moving Average ' + channel[2:] for channel in channels]] = new.moving_average(channels)
+		new.df[['RMS ' + channel[2:] for channel in channels]] = new.RMS(channels, 100)
+
+		print(new.df.head(), new.df.tail())
 
 		return new
 
