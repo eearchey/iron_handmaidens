@@ -215,10 +215,13 @@ class EMGData:
 
 		channels = self[['CH']]
 
-		new.df[channels] = self.normalize(channels)
 		new.df['Elapse (s)'] = new.df.index * new.frequency
+
 		new.df[['Moving Average ' + channel[2:] for channel in channels]] = new.moving_average(channels)
 		new.df[['RMS ' + channel[2:] for channel in channels]] = new.RMS(channels, 100)
+
+		lines = new[['RMS', 'Moving', 'CH']]
+		new.df[lines] = new.normalize(lines)
 
 		return new
 
