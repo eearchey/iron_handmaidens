@@ -1,13 +1,39 @@
 {% extends "data/base.html" %}
 {% block content %}
-
-<script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
-<div align="center">
-	<h2>visualize</h2>
-	<h3>File name: {{ filename }}</h3>
-	{{ table | safe }}
-	{{ plt | safe }}
-</div>
-<p><a href="{% url 'data-home' %}">Return to home</a></p>
+<style>
+	body{
+		background-color: #E8EAED;
+	}
+</style>
+<body>
+	<style>
+		h2{
+			font-family: AlteHaasGroteskBold;
+		}
+		h3{
+			font-family: AlteHaasGroteskBold;
+		}
+		button{
+			background-color: white;
+			border: none;
+			border-radius: 8px;
+			box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+			color: #1A73E8;
+			cursor: pointer;
+			display: inline-block;
+			font-family: AlteHaasGroteskBold;
+			font-size:25px;
+			padding: 15px 32px;
+		}
+	</style>
+	<p><button href="{% url 'data-home' %}" class="button">Return to home</button></p>
+	<script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+	<div align="center">
+		<h2>Visualization</h2>
+		<h3>File name: {{ filename }}</h3>
+		{{ table | safe }}
+		{{ plt | safe }}
+	</div>
+</body>
 
 {% endblock content %}
