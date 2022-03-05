@@ -13,7 +13,7 @@
 		h3{
 			font-family: AlteHaasGroteskBold;
 		}
-		button{
+		a{
 			background-color: white;
 			border: none;
 			border-radius: 8px;
@@ -26,11 +26,11 @@
 			padding: 15px 32px;
 		}
 	</style>
-	<p><button href="{% url 'data-home' %}" class="button">Return to home</button></p>
+	<p><a href="{% url 'data-home' %}" class="button">Return to home</a></p>
 	<script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
 	<div align="center">
 		<h2>Visualization</h2>
-		<h3>File name: {{ filename }}</h3>
+		<!--<h3>File name: {{ filename }}</h3>-->
 		{{ table | safe }}
 		{{ plt | safe }}
 	</div>
