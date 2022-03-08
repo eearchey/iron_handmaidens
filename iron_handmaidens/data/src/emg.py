@@ -2,6 +2,8 @@ import pandas as pd
 import plotly.graph_objs as go
 from plotly.offline import plot as plotly_plot
 
+from numpy import int64
+
 from data.src.converter import Converter
 
 class EMGData:
@@ -93,7 +95,7 @@ class EMGData:
 
 		left, right = self.df.copy(), other.df.copy()
 		for df, obj in [(left, self), (right, other)]:
-			df[obj['Timestamp']] = df[obj['Timestamp']].astype(int)
+			df[obj['Timestamp']] = df[obj['Timestamp']].astype(int64)
 			df = df.drop_duplicates(obj['Timestamp'])
 
 		df = pd.merge(left, right, 'inner', left_on=self['Timestamp'], right_on=other['Timestamp'])
