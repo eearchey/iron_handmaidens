@@ -97,7 +97,7 @@ class EMGData:
 			df = df.drop_duplicates(obj['Timestamp'])
 
 		df = pd.merge(left, right, 'inner', left_on=self['Timestamp'], right_on=other['Timestamp'])
-		new = EMGData(df, period=self.period)
+		new = EMGData(df, period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
 
 		try:
 			timestamps = new[['Timestamp']]
@@ -215,7 +215,7 @@ class EMGData:
 
 		channels = self[['CH']]
 
-		new.df['Elapse (s)'] = new.df.index * new.frequency
+		new.df['Elapse (s)'] = new.df[new['Timestamp']].diff().fillna(0).cumsum() / 1000
 
 		new.df[['Moving Average ' + channel[2:] for channel in channels]] = new.moving_average(channels)
 		new.df[['RMS ' + channel[2:] for channel in channels]] = new.RMS(channels, 100)
