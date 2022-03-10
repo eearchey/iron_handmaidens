@@ -34,6 +34,23 @@ def visualize(request):
     global data
     if data is None:
         return redirect('data-home')
+    
+    if request.method == 'POST' and request.FILES['csv-file']:
+        files = request.FILES.getlist('csv-file')
+
+        for file in files:
+            fileExtension = file.name.split('.')[1]
+            if fileExtension == 'csv':
+                newData = EMGData.read_csv(file)
+            elif fileExtension == 'mat':
+                newData = EMGData.read_mat(file)
+
+            if data == None:
+                data = newData
+            else:
+                data += newData
+                
+        return redirect('/visualize/')
 
     table = data.quartiles().to_html()
     preprocessed = data.preprocess()

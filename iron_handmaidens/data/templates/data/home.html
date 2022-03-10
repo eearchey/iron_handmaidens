@@ -41,10 +41,10 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <br><br>
-        <h3>Please begin by uploading your csv or mat file.</h3>
+        <h3>Please begin by uploading your csv or mat file(s).</h3>
         <br>
         <div class = "form-group">
-            <input type="button" id="uploadFile" value="Upload File" onclick="document.getElementById('csv-file').click();"/>
+            <input type="button" id="uploadFile" value="Upload Files" onclick="document.getElementById('csv-file').click();"/>
             <input type="file" style="display:none;" id="csv-file" name="csv-file" accept=".csv, .mat" multiple="true">
             <br><br>
             <h4 id="file-names">No files selected yet.</h4>
@@ -58,7 +58,7 @@
 </div>
 
 <div class = "thanks">
-    <h3>Thank you for uploading the file!</h3>
+    <h3>Thank you for uploading the file! This may take a moment.</h3>
 </div>
 
 <script type = "text/javascript">
