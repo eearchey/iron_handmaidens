@@ -33,7 +33,8 @@ class EMGData:
 
 		if type(idxs) == str:
 			if len(columns) != 1:
-				raise ValueError('More than one column found')
+				raise ValueError('More than one column found while searching for: ' + idxs +
+								'\nPass list to search for multiple column names')
 			else:
 				return columns[0]
 
@@ -168,7 +169,7 @@ class EMGData:
 	def find_events(self, eventsCol='Event'):
 		new = pd.DataFrame()
 
-		new['Toggle'] = self.df[self[eventsCol]].diff()
+		new['Toggle'] = self.df[self[[eventsCol]][0]].diff()
 		new = self.df.loc[abs(new['Toggle']) == 3]
 
 		return [(new.iloc[i], new.iloc[i+1]) for i in range(0, len(new)-1, 2)]
