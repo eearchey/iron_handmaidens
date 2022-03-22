@@ -165,7 +165,15 @@ class EMGData:
 
 		return self.df[columns].quantile(q)
 
-	def figure(self, x: str or list=None, y: str or list=None, visible: str=None):
+	def find_events(self, eventsCol='Event'):
+		new = pd.DataFrame()
+
+		new['Toggle'] = self.df[self[eventsCol]].diff()
+		new = self.df.loc[abs(new['Toggle']) == 3]
+
+		return [(new.iloc[i], new.iloc[i+1]) for i in range(0, len(new)-1, 2)]
+
+	def figure(self, x: str or list=None, y: str or list=None, visible: str=None, eventMarkers=None):
 		if x is None:
 			try:
 				x = self['Elapse']
@@ -188,25 +196,24 @@ class EMGData:
 		if visible is not None:
 			fig.for_each_trace(lambda trace: trace.update(visible=True) if trace.name in visible else trace.update(visible='legendonly'))
 
+		if eventMarkers is not None:
+			for start, stop in self.find_events(eventMarkers):
+				fig.add_vrect(start['Elapse (s)'], stop['Elapse (s)'], fillcolor='green', opacity=0.15)
+
 		fig.update_layout(
 			title="EMG Data",
 			xaxis_title=x,
 			yaxis_title="Normalized Values",
 			legend_title="Data Source",
-			# font=dict(
-			# 	family="Courier New, monospace",
-			# 	size=18,
-			# 	color="RebeccaPurple"
-			# )
 		)
 
 		return fig
 
-	def plot(self, fig: object=None, x: list or str=None, y: list or str=None, visible=None):
+	def plot(self, fig: object=None, x: list or str=None, y: list or str=None, visible=None, eventMarkers=None):
 		if fig is not None:
 			return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
-		fig = self.figure(x, y, visible)
+		fig = self.figure(x, y, visible, eventMarkers)
 
 		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
