@@ -35,6 +35,10 @@
     div {
         text-align: center;
     }
+    label{
+        font-family: AlteHaasGroteskBold;
+        font-size: small;
+    }
 </style>
 <h1>{% block title %}Iron Handmaidens{% endblock %}</h1>
 <div class = "begin">
@@ -50,7 +54,6 @@
             <h4 id="file-names">No files selected yet.</h4>
         </div>
         <div class = "go form-group">
-            <br>
             <h3>Once your file has been attached, click Submit.</h3>
             <button id="advance" type="submit" onclick="thanks()" class="btn btn-primary">Submit</button>
         </div>
@@ -75,10 +78,12 @@
     input.addEventListener('change', showFileName);
     function showFileName(event) {
         let input = event.srcElement;
-        file_names.innerHTML = "Files: <br />";
+        file_names.innerHTML = 'Files: <br />';
+        /*Empty array to store channel names for each file submitted*/
         for (let j = 0; j < input.files.length; j++) {
             let fileName = input.files[j].name;
-            file_names.innerHTML += fileName + "<br />";
+            file_names.innerHTML += fileName + '<br><label for="ch1Name">Channel 1:</label><br><input type="text" id="ch1Name' + j +'" name="ch1Name" value="Channel 1"><br><label for="ch2Name">Channel 2:</label><br><input type="text" id="ch2Name' + j +'" name="ch2Name" value="Channel 2"><br><br />';
+            /*Channel names are by the format 'ch1Namej' and 'ch2Namej'*/
         }
         let y = document.getElementsByClassName("go");
         for (j = 0; j < y.length; j++) {
