@@ -54,7 +54,7 @@ def visualize(request):
 
     table = data.quartiles().to_html()
     preprocessed = data.preprocess()
-    plt = preprocessed.plot(visible=preprocessed[['RMS']])
+    plt = preprocessed.plot(visible=preprocessed[['RMS']], eventMarkers='Event')
 
     return render(request, 'data/visualize.html', {'table': table, 'plt': plt})
 
