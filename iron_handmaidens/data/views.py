@@ -7,34 +7,36 @@ import io
 
 from data.src.emg import EMGData
 
-data = None
+data = []
 
 def home(request):
     global data
     if request.method == 'POST' and request.FILES['csv-file']:
         files = request.FILES.getlist('csv-file')
-
+        print(request.POST)
+        tags = {'channels': ['CH1_4680', 'CH2_4680'], 'time': 'Timestamp_4680', 'event': 'Event_4680'}
         for file in files:
             fileExtension = file.name.split('.')[1]
             if fileExtension == 'csv':
-                newData = EMGData.read_csv(file)
+                newData = EMGData.read_csv(file, **tags)
             elif fileExtension == 'mat':
-                newData = EMGData.read_mat(file)
+                newData = EMGData.read_mat(file, **tags)
 
-            if data == None:
-                data = newData
-            else:
-                data += newData
+            data.append(newData)
+            # if not data:
+            #     data = newData
+            # else:
+            #     data += newData
 
         return redirect('visualize/')
-    data = None
+    data = []
     return render(request, 'data/home.html')
 
 def visualize(request):
     global data
-    if data is None:
+    if not data:
         return redirect('data-home')
-    
+
     if request.method == 'POST' and request.FILES['csv-file']:
         files = request.FILES.getlist('csv-file')
 
@@ -45,18 +47,22 @@ def visualize(request):
             elif fileExtension == 'mat':
                 newData = EMGData.read_mat(file)
 
-            if data == None:
-                data = newData
-            else:
-                data += newData
-                
+            data.append(newData)
+            # if data == None:
+            #     data = newData
+            # else:
+            #     data += newData
+
         return redirect('/visualize/')
 
-    table = data.quartiles().to_html()
-    preprocessed = data.preprocess()
-    plt = preprocessed.plot(visible=preprocessed[['RMS']], eventMarkers='Event')
+    tables = []
+    plts = []
+    for set in data:
+        tables.append(set.quartiles().to_html())
+        preprocessed = set.preprocess()
+        plts.append(preprocessed.plot(visible=preprocessed[['RMS']], eventMarkers='Event'))
 
-    return render(request, 'data/visualize.html', {'table': table, 'plt': plt})
+    return render(request, 'data/visualize.html', {'data': zip(tables, plts)})
 
 def upload(request):
     return render(request, 'data/upload.html')

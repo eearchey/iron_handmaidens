@@ -9,51 +9,35 @@ class EMGData:
 	Group of operations commonly done to file in order to prepare it to be rendered
 	"""
 
-	def __init__(self, df, period: float=None, frequency: float=None, maxDataPoints=1000, windowTime=1):
+	def __init__(self, df, channels: list, time: str, event: str, period: float, maxDataPoints: int, windowTime: float) -> None:
 		self.df = df
 
-		if period is not None:
-			self.period = period
-		elif frequency is not None:
-			self.frequency = frequency
-		else:
-			self.period = 1024
+		self.channelNames = channels
+		self.timeName = time
+		self.eventName = event
 
+		self.period = period
 		self.maxDataPoints = maxDataPoints
 		self.windowTime = windowTime
+
+	@classmethod
+	def read_csv(cls, csv: str or object, channels: list, time: str, event: str, period: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
+		df = pd.read_csv(csv)
+
+		return cls(df, channels, time, event, period, maxDataPoints, windowTime)
+
+	@classmethod
+	def read_mat(cls, mat: str or object, channels: list, time: str, event: str, period: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
+		df = Converter().mat_to_df(mat)
+		df = df.astype(float)
+
+		return cls(df, channels, time, event, period, maxDataPoints, windowTime)
 
 	def __repr__(self) -> str:
 		return f'EMGData(DataFrame, {self.period}, {self.frequency})'
 
 	def __str__(self) -> str:
 		return self.df.head().to_string()
-
-	def __getitem__(self, idxs: str or list) -> str:
-		columns = self.find_columns(idxs)
-
-		if type(idxs) == str:
-			if len(columns) != 1:
-				raise ValueError('More than one column found while searching for: ' + idxs +
-								'\nPass list to search for multiple column names')
-			else:
-				return columns[0]
-
-		return columns
-
-	def __add__(self, other: object):
-		return self.merge(other)
-
-	@classmethod
-	def read_csv(cls, csv: str or object, period: float=1024):
-		df = pd.read_csv(csv)
-
-		return cls(df, period=period)
-
-	@classmethod
-	def read_mat(cls, mat:object, period: float=1024):
-		df = Converter().mat_to_df(mat)
-		df = df.astype(float)
-		return cls(df, period=period)
 
 	@property
 	def frequency(self) -> float:
@@ -70,8 +54,44 @@ class EMGData:
 		return slice(None, None, len(self.df) // self.maxDataPoints)
 
 	@property
-	def windowLength(self):
+	def windowLength(self) -> int:
 		return int(self.windowTime // self.frequency)
+
+	@property
+	def channels(self) -> pd.DataFrame or pd.Series:
+		return self.df[self.channelNames]
+
+	@channels.setter
+	def channels(self, data: int or float or pd.Series or pd.DataFrame) -> None:
+		self.df[self.channelNames] = data
+
+	@property
+	def time(self) -> pd.Series:
+		return self.df[self.timeName]
+
+	@time.setter
+	def time(self, data: int or float or pd.Series) -> None:
+		self.df[self.timeName] = data
+
+	@property
+	def event(self) -> pd.Series:
+		return self.df[self.eventName]
+
+	@event.setter
+	def event(self, data: int or float or pd.Series) -> None:
+		self.df[self.eventName] = data
+
+	def __getitem__(self, idxs: str or list) -> str:
+		columns = self.find_columns(idxs)
+
+		if type(idxs) == str:
+			if len(columns) != 1:
+				raise ValueError('More than one column found while searching for: ' + idxs +
+								'\nPass list to search for multiple column names')
+			else:
+				return columns[0]
+
+		return columns
 
 	def find_columns(self, names: str or list) -> list:
 		if type(names) != list:
@@ -85,6 +105,9 @@ class EMGData:
 			raise ValueError('Column(s) could not be found:' + name)
 
 		return columns
+
+	def __add__(self, other: object):
+		return self.merge(other)
 
 	def merge(self, other: object):
 		if type(other) != EMGData:
@@ -219,7 +242,7 @@ class EMGData:
 		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
 	def preprocess(self):
-		new = EMGData(self.df.copy(), period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
+		new = EMGData(self.df.copy(), self.channels, self.time, self.event, period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
 
 		channels = self[['CH']]
 

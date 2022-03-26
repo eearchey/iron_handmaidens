@@ -31,8 +31,10 @@
 	<div align="center">
 		<h2>Visualization</h2>
 		<!--<h3>File name: {{ filename }}</h3>-->
+		{% for table, plt in data %}
 		{{ table | safe }}
 		{{ plt | safe }}
+		{% endfor %}
 	</div>
 
 	<p>
@@ -53,13 +55,13 @@
 			</form>
 		</div>
 		</center>
-		
+
 		<center>
 		<div class = "thanks">
 			<h3>Thank you for uploading the file! This may take a moment.</h3>
 		</div>
 		</center>
-		
+
 		<script type = "text/javascript">
 			let x = document.getElementsByClassName("thanks");
 			for (let i = 0; i < x.length; i++) {
@@ -94,7 +96,7 @@
 					y[j].style.display = 'block';
 				}
 			}
-		</script> 
+		</script>
 	</p>
 </body>
 
