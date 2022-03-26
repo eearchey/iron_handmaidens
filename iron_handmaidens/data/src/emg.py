@@ -9,12 +9,12 @@ class EMGData:
 	Group of operations commonly done to file in order to prepare it to be rendered
 	"""
 
-	def __init__(self, df, channels: list, time: str, event: str, period: float, maxDataPoints: int, windowTime: float) -> None:
+	def __init__(self, df, channelNames: list, timeName: str, eventName: str, period: float, maxDataPoints: int, windowTime: float) -> None:
 		self.df = df
 
-		self.channelNames = channels
-		self.timeName = time
-		self.eventName = event
+		self.channelNames = channelNames
+		self.timeName = timeName
+		self.eventName = eventName
 
 		self.period = period
 		self.maxDataPoints = maxDataPoints
@@ -121,7 +121,7 @@ class EMGData:
 			df = df.drop_duplicates(obj['Timestamp'])
 
 		df = pd.merge(left, right, 'inner', left_on=self['Timestamp'], right_on=other['Timestamp'])
-		new = EMGData(df, period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
+		new = EMGData(df, self.channelNames, self.timeName, self.eventName, self.period, self.maxDataPoints, self.windowTime)
 
 		try:
 			timestamps = new[['Timestamp']]
@@ -242,7 +242,7 @@ class EMGData:
 		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
 	def preprocess(self):
-		new = EMGData(self.df.copy(), self.channels, self.time, self.event, period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
+		new = EMGData(self.df.copy(), self.channelNames, self.timeName, self.eventName, period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
 
 		channels = self[['CH']]
 
