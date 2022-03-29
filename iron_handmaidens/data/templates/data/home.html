@@ -1,5 +1,6 @@
 {% extends "data/base.html" %}
 {% block content %}
+<!---Homepage for the application. This page allows a user to upload one or multiple .csv and .mat files with EMG data.-->
 <style>
     h1 {
         color:#1A73E8;
@@ -54,7 +55,7 @@
             <h4 id="file-names">No files selected yet.</h4>
         </div>
         <div class = "go form-group">
-            <h3>Once your file has been attached, click Submit.</h3>
+            <h3>Once your file has been attached and the form fields have been filled, click Submit.</h3>
             <button id="advance" type="submit" onclick="thanks()" class="btn btn-primary">Submit</button>
         </div>
     </form>
@@ -82,8 +83,9 @@
         /*Empty array to store channel names for each file submitted*/
         for (let j = 0; j < input.files.length; j++) {
             let fileName = input.files[j].name;
-            file_names.innerHTML += fileName + '<br><label for="ch1Name">Channel 1:</label><br><input type="text" id="ch1Name' + j +'" name="ch1Name" value="Channel 1"><br><label for="ch2Name">Channel 2:</label><br><input type="text" id="ch2Name' + j +'" name="ch2Name" value="Channel 2"><br><br />';
-            /*Channel names are by the format 'ch1Namej' and 'ch2Namej'*/
+            file_names.innerHTML += fileName + '<br><label for="ch1Name">Channel 1:&emsp;</label><input type="text" id="ch1Name' + j +'" name="ch1Name" value="Channel 1" onclick="this.select()">&emsp;<label for="ch2Name">Channel 2:&emsp;</label><input type="text" id="ch2Name' + j +'" name="ch2Name" value="Channel 2" onclick="this.select()"><br />';
+            file_names.innerHTML += '<br><label for="timestampName">Timestamp:&emsp;</label><input type="text" id="timestamp' + j +'" name="timestampName" value="Timestamp" onclick="this.select()">&emsp;<label for="Event Marker">Event Marker:&emsp;</label><input type="text" id="eventMarker' + j +'" name="eventMarker" value="Event Marker"  onclick="this.select()"><br><br />';
+            /*Channel names are by the format 'ch1Namej','ch2Namej','timeStampj','eventMarkerj*/
         }
         let y = document.getElementsByClassName("go");
         for (j = 0; j < y.length; j++) {

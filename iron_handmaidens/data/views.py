@@ -5,10 +5,14 @@ from data.src.emg import EMGData
 data = []
 
 def home(request):
+    # Initially shows homepage for application. After the user uploads a file, this function processes it
+    # and goes to the visualize page. There is also a safety feature for if the user does not upload a file.
     global data
+    # After the POST, this checks that the user has submitted a file or files into the backend.
     if request.method == 'POST' and request.FILES['csv-file']:
         files = request.FILES.getlist('csv-file')
         print(request.POST)
+        # Loop through all submitted files and differentiates between their formats to read them.
         for file in files:
             columnSuffix = '_' + file.name.split('.')[0].split('_')[-1]
             tags = {'channels': ['CH1' + columnSuffix, 'CH2' + columnSuffix], 'time': 'Timestamp' + columnSuffix, 'event': 'Event' + columnSuffix}
@@ -33,10 +37,13 @@ def home(request):
     return render(request, 'data/home.html')
 
 def visualize(request):
+    # This page shows the user's data in a visual form, using plotly. This can be from one or multiple data files.
     global data
+
+    # Ensuring we have data to use
     if not data:
         return redirect('data-home')
-
+    # Retrieving data from uploaded files if the user chooses to upload more after the first visualization.
     if request.method == 'POST' and request.FILES['csv-file']:
         files = request.FILES.getlist('csv-file')
         tags = {'channels': ['CH1_4680', 'CH2_4680'], 'time': 'Timestamp_4680', 'event': 'Event_4680'}
@@ -54,6 +61,7 @@ def visualize(request):
 
         return redirect('/visualize/')
 
+    # preprocess the data
     tables = []
     plts = []
     for dataset in data:
@@ -63,5 +71,5 @@ def visualize(request):
 
     return render(request, 'data/visualize.html', {'data': zip(tables, plts)})
 
-def upload(request):
-    return render(request, 'data/upload.html')
+def about(request):
+    return render(request, 'data/about.html')

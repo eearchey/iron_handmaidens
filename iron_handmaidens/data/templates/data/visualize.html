@@ -1,5 +1,6 @@
 {% extends "data/base.html" %}
 {% block content %}
+<!---This page shows the processed data in its visualized form to the user.-->
 <style>
 	body{
 		background-color: #E8EAED;
@@ -28,6 +29,7 @@
 	</style>
 	<p><a href="{% url 'data-home' %}" class="button">Return to home</a></p>
 	<script src="https://cdn.plot.ly/plotly-2.9.0.min.js"></script>
+	<!---Title and other setup of graph.-->
 	<div align="center">
 		<h2>Visualization</h2>
 		<!--<h3>File name: {{ filename }}</h3>-->
@@ -43,6 +45,7 @@
 		<div class = "begin">
 			<form method="post" enctype="multipart/form-data">
 				{% csrf_token %}
+				<!---Allows user to upload more data after their first data was already visualized.-->
 				<div class = "form-group">
 					<input type="button" id="uploadFile" value="Upload More Files" onclick="document.getElementById('csv-file').click();" style="float:center;"/>
 					<input type="file" style="display:none;" id="csv-file" name="csv-file" accept=".csv, .mat" multiple="true">
@@ -57,6 +60,7 @@
 		</div>
 		</center>
 
+		<!---Message ensuring the user waits while the data is processed.-->
 		<center>
 		<div class = "thanks">
 			<h3>Thank you for uploading the file! This may take a moment.</h3>
@@ -64,6 +68,7 @@
 		</center>
 
 		<script type = "text/javascript">
+			/* Hiding elements that should only appear when prompted. */
 			let x = document.getElementsByClassName("thanks");
 			for (let i = 0; i < x.length; i++) {
 				x[i].style.display = 'none';
@@ -72,11 +77,13 @@
 			for (i = 0; i < x.length; i++) {
 				x[i].style.display = 'none';
 			}
+			/* Watching for new files to be uploaded. */
 			let input = document.getElementById('csv-file');
 			let file_names = document.getElementById('file-names');
 			input.addEventListener('change', showFileName);
 			function showFileName(event) {
 				let input = event.srcElement;
+				/* Showing user what files they have uploaded and showing submit button. */
 				file_names.innerHTML = "New Files: <br />";
 				for (let j = 0; j < input.files.length; j++) {
 					let fileName = input.files[j].name;
@@ -88,6 +95,7 @@
 				}
 			}
 			function thanks() {
+				/* Showing wait message. */
 				let y = document.getElementsByClassName("begin");
 				for (let j = 0; j < y.length; j++) {
 					y[j].style.display = 'none';
