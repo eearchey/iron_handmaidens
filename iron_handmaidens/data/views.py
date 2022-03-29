@@ -66,3 +66,6 @@ def visualize(request):
     plt = preprocessed.plot(visible=preprocessed[['RMS']], eventMarkers='Event')
 
     return render(request, 'data/visualize.html', {'table': table, 'plt': plt})
+
+def about(request):
+    return render(request, 'data/about.html')
