@@ -1,0 +1,72 @@
+{% extends "data/base.html" %}
+{% block content %}
+<style>
+    h3 {
+        text-align: center;
+        font-family: AlteHaasGroteskBold;
+    }
+    h4 {
+        text-align: center;
+        font-family: AlteHaasGroteskBold;
+    }
+    h5 {
+        text-align: left;
+        font-family: AlteHaasGroteskBold;
+    }
+    p {
+        text-align: left;
+        font-family: AlteHaasGrotesk;
+    }
+    input[type="button"] {
+        background-color: #4285F4;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-family: AlteHaasGroteskBold;
+        padding: 14px 40px;
+    }
+    button{
+        background-color: #4285F4;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-family: AlteHaasGroteskBold;
+        padding: 14px 40px;
+    }
+    div {
+        text-align: center;
+    }
+    label{
+        font-family: AlteHaasGroteskBold;
+        font-size: small;
+    }
+</style>
+<br><br><br>
+<h3>Iron Handmaidens</h3>
+<h4>Emily Archey, Josh Hourigan, Sean Macander, Alden Moreton, Vyas Padmanabhan</h4>
+
+<p><center>This application takes in a .csv or .mat file full of EMG data and processes the data to give the user a graphical visualization.</center></p>
+<br>
+<h5>Usage</h5>
+<p><b>Home Page</b> <br>
+    &nbsp;<i>Upload files</i><br>
+        &nbsp;&nbsp; Upload one or multiple .csv OR .mat files of EMG data. This will take you to the visualize page.<br>
+    &nbsp;<i>About page</i><br>
+        &nbsp;&nbsp;Go to the about page<br>
+    &nbsp;<i>Home page</i><br>
+        &nbsp;&nbsp;Go back to the beginning of the process<br><br>
+    
+<b>Visualize Page</b><br>
+    &nbsp;The data you uploaded will be presented in graphical form, along with certain important data points.<br>
+    &nbsp;The graphs can be manipulated as desired.<br>
+    &nbsp;You can also upload new data on this page.<br>
+    &nbsp;From the visualize page, you can also go to the about page or back to the home page.</p><br>
+<h5>Running Locally</h5>
+<p>To run this program locally, navigate to the iron_handmaidens folder with manage.py inside. From there, run the following command:<br>
+        &nbsp;&nbsp;<i>python3 manage.py runserver</i><br>
+    &nbsp;In the terminal, the local URL should be displayed. Paste this into your browser of choice (Chrome, Safari, etc.)<br>
+    &nbsp;You are now in the application!<br>
+</p>
+{% endblock content %}
