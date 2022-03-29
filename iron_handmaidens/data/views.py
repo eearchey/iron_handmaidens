@@ -66,7 +66,3 @@ def visualize(request):
     plt = preprocessed.plot(visible=preprocessed[['RMS']], eventMarkers='Event')
 
     return render(request, 'data/visualize.html', {'table': table, 'plt': plt})
-
-def upload(request):
-    # This function brings the user back to the upload page? Ask Sean
-    return render(request, 'data/upload.html')
