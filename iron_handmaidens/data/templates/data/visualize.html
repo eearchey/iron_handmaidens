@@ -33,8 +33,11 @@
 	<div align="center">
 		<h2>Visualization</h2>
 		<!--<h3>File name: {{ filename }}</h3>-->
-		{{ table | safe }}
-		{{ plt | safe }}
+		{% for table, plt in data %}
+			{{ table | safe }}
+			<br>
+			{{ plt | safe }}
+		{% endfor %}
 	</div>
 
 	<p>
@@ -56,13 +59,14 @@
 			</form>
 		</div>
 		</center>
+
 		<!---Message ensuring the user waits while the data is processed.-->
 		<center>
 		<div class = "thanks">
 			<h3>Thank you for uploading the file! This may take a moment.</h3>
 		</div>
 		</center>
-		
+
 		<script type = "text/javascript">
 			/* Hiding elements that should only appear when prompted. */
 			let x = document.getElementsByClassName("thanks");
@@ -101,7 +105,7 @@
 					y[j].style.display = 'block';
 				}
 			}
-		</script> 
+		</script>
 	</p>
 </body>
 

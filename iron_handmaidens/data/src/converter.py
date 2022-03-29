@@ -23,12 +23,13 @@ class Converter():
 
 	version = '1.0.0'
 
-	def __init__(self, fileType: str='.mat', labelExclude: list=EXCLUDE, labelMap: dict=RENAME):
+	def __init__(self, fileType: str='.mat', labelExclude: list=EXCLUDE, labelMap: dict=RENAME) -> None:
 		self.filetype = fileType
 		self.labelExclude = labelExclude
 		self.labelMap = labelMap
 
 	def exclude_keys(self, oldDict: dict) -> dict:
+		"""# List of columns in EMG data file that should be excluded from the conversion process."""
 		newDict = {}
 		for key in oldDict:
 			if key not in self.labelExclude:
@@ -36,6 +37,7 @@ class Converter():
 		return newDict
 
 	def rename_keys(self, oldDict: dict) -> dict:
+		"""# Mapping of old names to new names for the EMG data columns."""
 		newDict = {}
 		for key in oldDict:
 			if key in self.labelMap:
@@ -44,7 +46,8 @@ class Converter():
 				newDict[key] = oldDict[key]
 		return newDict
 
-	def mat_to_df(self, infile: str) -> None:
+	def mat_to_df(self, infile: str) -> pd.DataFrame:
+		"""# Convert a matlab file to a pandas dataframe."""
 		if self.filetype not in infile and type(infile) == str:
 			print('Skipping'.ljust(20) + infile)
 			return
@@ -71,7 +74,8 @@ class Converter():
 
 		return df
 
-	def mat_to_csv(self, infile: str, outfile: str=None):
+	def mat_to_csv(self, infile: str, outfile: str=None) -> None:
+		"""# Convert a matlab file to a csv file."""
 		df = self.mat_to_df(infile)
 
 		if outfile is None:
@@ -83,6 +87,7 @@ class Converter():
 
 
 	def dir_to_csv(self, dir: str, recursive: bool=False) -> None:
+		"""# Convert all matlab files in a directory to csv files."""
 		if recursive:
 			for (path, dirs, files) in os.walk(dir):
 				for file in files:

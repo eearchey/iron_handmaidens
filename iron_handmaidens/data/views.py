@@ -1,13 +1,8 @@
-import queue
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.core.files.storage import FileSystemStorage
-import csv
-import io
 
 from data.src.emg import EMGData
 
-data = None
+data = []
 
 def home(request):
     # Initially shows homepage for application. After the user uploads a file, this function processes it
@@ -16,56 +11,65 @@ def home(request):
     # After the POST, this checks that the user has submitted a file or files into the backend.
     if request.method == 'POST' and request.FILES['csv-file']:
         files = request.FILES.getlist('csv-file')
-
+        print(request.POST)
         # Loop through all submitted files and differentiates between their formats to read them.
         for file in files:
+            columnSuffix = '_' + file.name.split('.')[0].split('_')[-1]
+            tags = {'channels': ['CH1' + columnSuffix, 'CH2' + columnSuffix], 'time': 'Timestamp' + columnSuffix, 'event': 'Event' + columnSuffix}
+
             fileExtension = file.name.split('.')[1]
             if fileExtension == 'csv':
-                newData = EMGData.read_csv(file)
+                newData = EMGData.read_csv(file, **tags)
             elif fileExtension == 'mat':
-                newData = EMGData.read_mat(file)
-            # Saving information to data
-            if data == None:
-                data = newData
+                newData = EMGData.read_mat(file, **tags)
+
+            if not data:
+                data.append(newData)
             else:
-                data += newData
-        # Moves user to visualize page.
+                try:
+                    data[0] = data[0].merge(newData)
+                except ValueError as e:
+                    print('Skipping file: ' + file.name)
+                    print('Reason:', e)
+
         return redirect('visualize/')
-    data = None
+    data = []
     return render(request, 'data/home.html')
 
 def visualize(request):
     # This page shows the user's data in a visual form, using plotly. This can be from one or multiple data files.
     global data
-    # Ensuring we have data to use
-    if data is None:
-        return redirect('data-home')
 
+    # Ensuring we have data to use
+    if not data:
+        return redirect('data-home')
     # Retrieving data from uploaded files if the user chooses to upload more after the first visualization.
-    
     if request.method == 'POST' and request.FILES['csv-file']:
         files = request.FILES.getlist('csv-file')
-
+        tags = {'channels': ['CH1_4680', 'CH2_4680'], 'time': 'Timestamp_4680', 'event': 'Event_4680'}
         for file in files:
             fileExtension = file.name.split('.')[1]
             if fileExtension == 'csv':
-                newData = EMGData.read_csv(file)
+                newData = EMGData.read_csv(file, **tags)
             elif fileExtension == 'mat':
-                newData = EMGData.read_mat(file)
+                newData = EMGData.read_mat(file, **tags)
 
-            if data == None:
-                data = newData
+            if not data:
+                data.append(newData)
             else:
-                data += newData
-                
+                data[0] = data[0].merge(newData)
+
         return redirect('/visualize/')
 
-    # Preprocessing data
-    table = data.quartiles().to_html()
-    preprocessed = data.preprocess()
-    plt = preprocessed.plot(visible=preprocessed[['RMS']], eventMarkers='Event')
+    # preprocess the data
+    tables = []
+    plts = []
+    for dataset in data:
+        tables.append(dataset.quartiles().to_html())
+        preprocessed = dataset.preprocess()
+        plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
 
-    return render(request, 'data/visualize.html', {'table': table, 'plt': plt})
+    return render(request, 'data/visualize.html', {'data': zip(tables, plts)})
 
 def about(request):
     return render(request, 'data/about.html')
