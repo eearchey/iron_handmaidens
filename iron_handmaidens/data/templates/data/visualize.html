@@ -33,6 +33,7 @@
 		<!--<h3>File name: {{ filename }}</h3>-->
 		{% for table, plt in data %}
 			{{ table | safe }}
+			<br>
 			{{ plt | safe }}
 		{% endfor %}
 	</div>

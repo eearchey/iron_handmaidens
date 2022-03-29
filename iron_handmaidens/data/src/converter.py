@@ -23,7 +23,7 @@ class Converter():
 
 	version = '1.0.0'
 
-	def __init__(self, fileType: str='.mat', labelExclude: list=EXCLUDE, labelMap: dict=RENAME):
+	def __init__(self, fileType: str='.mat', labelExclude: list=EXCLUDE, labelMap: dict=RENAME) -> None:
 		self.filetype = fileType
 		self.labelExclude = labelExclude
 		self.labelMap = labelMap
@@ -44,7 +44,7 @@ class Converter():
 				newDict[key] = oldDict[key]
 		return newDict
 
-	def mat_to_df(self, infile: str) -> None:
+	def mat_to_df(self, infile: str) -> pd.DataFrame:
 		if self.filetype not in infile and type(infile) == str:
 			print('Skipping'.ljust(20) + infile)
 			return
@@ -71,7 +71,7 @@ class Converter():
 
 		return df
 
-	def mat_to_csv(self, infile: str, outfile: str=None):
+	def mat_to_csv(self, infile: str, outfile: str=None) -> None:
 		df = self.mat_to_df(infile)
 
 		if outfile is None:

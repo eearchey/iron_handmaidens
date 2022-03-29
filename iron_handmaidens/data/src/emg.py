@@ -28,10 +28,12 @@ class EMGData:
 
 	@classmethod
 	def read_mat(cls, mat: str or object, channels: list, time: str, event: str, period: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
-		df = Converter().mat_to_df(mat)
-		df = df.astype(float)
+		df = Converter().mat_to_df(mat).astype(float)
 
 		return cls(df, channels, time, event, period, maxDataPoints, windowTime)
+
+	def copy(self):
+		return EMGData(self.df.copy(), self.channelNames, self.timeName, self.eventName, period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
 
 	def __repr__(self) -> str:
 		return f'EMGData(DataFrame, {self.period}, {self.frequency})'
@@ -41,11 +43,11 @@ class EMGData:
 
 	@property
 	def frequency(self) -> float:
-		return (1/self.period)
+		return 1 / self.period
 
 	@frequency.setter
 	def frequency(self, val: float):
-		self.period = (1/val)
+		self.period = 1 / val
 
 	@property
 	def idxs(self) -> slice:
@@ -81,17 +83,17 @@ class EMGData:
 	def event(self, data: int or float or pd.Series) -> None:
 		self.df[self.eventName] = data
 
-	def __getitem__(self, idxs: str or list) -> str:
-		columns = self.find_columns(idxs)
+	# def __getitem__(self, idxs: str or list) -> str:
+	# 	columns = self.find_columns(idxs)
 
-		if type(idxs) == str:
-			if len(columns) != 1:
-				raise ValueError('More than one column found while searching for: ' + idxs +
-								'\nPass list to search for multiple column names')
-			else:
-				return columns[0]
+	# 	if type(idxs) == str:
+	# 		if len(columns) != 1:
+	# 			raise ValueError('More than one column found while searching for: ' + idxs +
+	# 							'\nPass list to search for multiple column names')
+	# 		else:
+	# 			return columns[0]
 
-		return columns
+	# 	return columns
 
 	def find_columns(self, names: str or list) -> list:
 		if type(names) != list:
@@ -106,9 +108,6 @@ class EMGData:
 
 		return columns
 
-	def __add__(self, other: object):
-		return self.merge(other)
-
 	def merge(self, other: object):
 		if type(other) != EMGData:
 			raise TypeError('Trying to add something other than another dataframe')
@@ -117,18 +116,15 @@ class EMGData:
 
 		left, right = self.df.copy(), other.df.copy()
 		for df, obj in [(left, self), (right, other)]:
-			df[obj['Timestamp']] = df[obj['Timestamp']].astype('int64')
-			df = df.drop_duplicates(obj['Timestamp'])
+			df[obj.timeName] = obj.time.astype('int64')
+			df = df.drop_duplicates(obj.timeName)
 
-		df = pd.merge(left, right, 'inner', left_on=self['Timestamp'], right_on=other['Timestamp'])
+		df = pd.merge(left, right, 'inner', left_on=self.timeName, right_on=other.timeName)
 		new = EMGData(df, self.channelNames, self.timeName, self.eventName, self.period, self.maxDataPoints, self.windowTime)
 
+		timestamps = new.find_columns('Timestamp')
 		try:
-			timestamps = new[['Timestamp']]
-		except ValueError as err:
-			timestamps = []
-		try:
-			elapses = new[['Elapse']]
+			elapses = new.find_columns('Elapsed')
 		except ValueError as err:
 			elapses = []
 
@@ -137,6 +133,8 @@ class EMGData:
 				new.df[colName] = new.df[colType[0]]
 				for col in colType:
 					new.df = new.df.drop(col, axis=1)
+		if len(timestamps) > 1:
+			new.timeName = 'Timestamp'
 
 		return new
 
@@ -184,28 +182,22 @@ class EMGData:
 		return new
 
 	def quartiles(self, q: list or float=[0.9, 0.5, 0.1], columns: list or str=None):
-		if columns is None:
-			columns = self[['CH']]
+		columns = columns or self.channelNames
 
 		return self.df[columns].quantile(q)
 
-	def find_events(self, eventsCol='Event'):
+	def find_events(self, eventsCol=None):
+		eventsCol = eventsCol or self.eventName
 		new = pd.DataFrame()
 
-		new['Toggle'] = self.df[self[[eventsCol]][0]].diff()
+		new['Toggle'] = self.df[eventsCol].diff()
 		new = self.df.loc[abs(new['Toggle']) == 3]
 
 		return [(new.iloc[i], new.iloc[i+1]) for i in range(0, len(new)-1, 2)]
 
-	def figure(self, x: str or list=None, y: str or list=None, visible: str=None, eventMarkers=None):
-		if x is None:
-			try:
-				x = self['Elapse']
-			except ValueError as err:
-				x = self['Timestamp']
-
-		if y is None:
-			y = self[['RMS', 'Moving Average', 'CH']]
+	def figure(self, x: str=None, y: str or list=None, visible: str=None, eventMarkers=None):
+		x =  x or self.timeName
+		y = y or self.find_columns(['RMS', 'Moving Average', 'CH'])
 
 		fig = go.Figure()
 
@@ -233,7 +225,7 @@ class EMGData:
 
 		return fig
 
-	def plot(self, fig: object=None, x: list or str=None, y: list or str=None, visible=None, eventMarkers=None):
+	def plot(self, fig: object=None, x: str=None, y: list or str=None, visible=None, eventMarkers=None):
 		if fig is not None:
 			return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
@@ -242,16 +234,15 @@ class EMGData:
 		return plotly_plot(fig, include_plotlyjs=False, output_type='div')
 
 	def preprocess(self):
-		new = EMGData(self.df.copy(), self.channelNames, self.timeName, self.eventName, period=self.period, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
+		new = self.copy()
 
-		channels = self[['CH']]
+		new.df['Elapse (s)'] = new.time.diff().fillna(0).cumsum() / 1000
+		new.timeName = 'Elapse (s)'
 
-		new.df['Elapse (s)'] = new.df[new['Timestamp']].diff().fillna(0).cumsum() / 1000
+		new.df[['Moving Average ' + channel[2:] for channel in self.channelNames]] = new.moving_average(self.channelNames)
+		new.df[['RMS ' + channel[2:] for channel in self.channelNames]] = new.RMS(self.channelNames, 100)
 
-		new.df[['Moving Average ' + channel[2:] for channel in channels]] = new.moving_average(channels)
-		new.df[['RMS ' + channel[2:] for channel in channels]] = new.RMS(channels, 100)
-
-		lines = new[['RMS', 'Moving', 'CH']]
+		lines = new.find_columns(['RMS', 'Moving', 'CH'])
 		new.df[lines] = new.normalize(lines)
 
 		return new

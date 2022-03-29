@@ -20,7 +20,7 @@ def home(request):
             if not data:
                 data.append(newData)
             else:
-                data[0] += newData
+                data[0] = data[0].merge(newData)
 
         return redirect('visualize/')
     data = []
@@ -44,7 +44,7 @@ def visualize(request):
             if not data:
                 data.append(newData)
             else:
-                data[0] += newData
+                data[0] = data[0].merge(newData)
 
         return redirect('/visualize/')
 
@@ -53,7 +53,7 @@ def visualize(request):
     for dataset in data:
         tables.append(dataset.quartiles().to_html())
         preprocessed = dataset.preprocess()
-        plts.append(preprocessed.plot(visible=preprocessed[['RMS']], eventMarkers='Event'))
+        plts.append(preprocessed.plot(visible=preprocessed.find_columns('RMS'), eventMarkers=preprocessed.eventName))
 
     return render(request, 'data/visualize.html', {'data': zip(tables, plts)})
 
