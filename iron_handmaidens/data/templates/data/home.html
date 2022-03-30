@@ -82,9 +82,11 @@
         file_names.innerHTML = 'Files: <br />';
         /*Empty array to store channel names for each file submitted*/
         for (let j = 0; j < input.files.length; j++) {
-            let fileName = input.files[j].name;
-            file_names.innerHTML += fileName + '<br><label for="ch1Name">Channel 1:&emsp;</label><input type="text" id="ch1Name' + j +'" name="ch1Name" value="Channel 1" onclick="this.select()">&emsp;<label for="ch2Name">Channel 2:&emsp;</label><input type="text" id="ch2Name' + j +'" name="ch2Name" value="Channel 2" onclick="this.select()"><br />';
-            file_names.innerHTML += '<br><label for="timestampName">Timestamp:&emsp;</label><input type="text" id="timestamp' + j +'" name="timestampName" value="Timestamp" onclick="this.select()">&emsp;<label for="Event Marker">Event Marker:&emsp;</label><input type="text" id="eventMarker' + j +'" name="eventMarker" value="Event Marker"  onclick="this.select()"><br><br />';
+            let file = input.files[j]
+            let fileName = file.name;
+            let columnSuffix = '_' + fileName.split('.')[0].split('_')[1]
+            file_names.innerHTML += fileName + '<br><label for="ch1Name">CH1' + columnSuffix + ' :&emsp;</label><input type="text" id="ch1Name' + j +'" name="ch1Name" value="CH1' + columnSuffix + '" onclick="this.select()">&emsp;<label for="ch2Name">CH2' + columnSuffix + ' :&emsp;</label><input type="text" id="ch2Name' + j +'" name="ch2Name" value="CH2' + columnSuffix + '" onclick="this.select()"><br />';
+            file_names.innerHTML += '<br><label for="timestampName">Timestamp' + columnSuffix + ' :&emsp;</label><input type="text" id="timestamp' + j +'" name="timestampName" value="Timestamp' + columnSuffix + '" onclick="this.select()">&emsp;<label for="Event Marker">Event' + columnSuffix + ' :&emsp;</label><input type="text" id="eventMarker' + j +'" name="eventMarker" value="Event' + columnSuffix + '"  onclick="this.select()"><br><br />';
             /*Channel names are by the format 'ch1Namej','ch2Namej','timeStampj','eventMarkerj*/
         }
         let y = document.getElementsByClassName("go");
