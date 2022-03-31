@@ -1,28 +1,40 @@
+from tkinter.font import names
 from django.shortcuts import render, redirect
 
+from data.src.converter import RENAME
 from data.src.emg import EMGData
 
 data = []
 
 def home(request):
-    # Initially shows homepage for application. After the user uploads a file, this function processes it
-    # and goes to the visualize page. There is also a safety feature for if the user does not upload a file.
+    """
+    Initially shows homepage for application. After the user uploads a file, this function processes it
+    and goes to the visualize page. There is also a safety feature for if the user does not upload a file.
+    """
     global data
+
     # After the POST, this checks that the user has submitted a file or files into the backend.
     if request.method == 'POST' and request.FILES['csv-file']:
+        # Change the file and column name forms into more friendly datatypes
         files = request.FILES.getlist('csv-file')
-        print(request.POST)
-        # Loop through all submitted files and differentiates between their formats to read them.
-        for file in files:
-            columnSuffix = '_' + file.name.split('.')[0].split('_')[-1]
-            tags = {'channels': ['CH1' + columnSuffix, 'CH2' + columnSuffix], 'time': 'Timestamp' + columnSuffix, 'event': 'Event' + columnSuffix}
+        channelNames = rename_cols(dict(request.POST.lists()))
 
+        # Loop through all submitted files and differentiates between their formats to read them.
+        for idx, file in enumerate(files):
+            # Names of the columns in the file being prepared for the contructor
+            tags = {
+                'channelNames': [channelNames['ch1Name'][idx], channelNames['ch2Name'][idx]],
+                'timeName': channelNames['timestampName'][idx],
+                'eventName': channelNames['eventMarker'][idx]
+            }
+            # Contructing the EMGData object based on the input file type
             fileExtension = file.name.split('.')[1]
             if fileExtension == 'csv':
                 newData = EMGData.read_csv(file, **tags)
             elif fileExtension == 'mat':
                 newData = EMGData.read_mat(file, **tags)
 
+            # Storing the EMGData
             if not data:
                 data.append(newData)
             else:
@@ -32,12 +44,15 @@ def home(request):
                     print('Skipping file: ' + file.name)
                     print('Reason:', e)
 
+        # Redirecting to the visualize the data
         return redirect('visualize/')
     data = []
     return render(request, 'data/home.html')
 
 def visualize(request):
-    # This page shows the user's data in a visual form, using plotly. This can be from one or multiple data files.
+    """
+    This page shows the user's data in a visual form, using plotly. This can be from one or multiple data files.
+    """
     global data
 
     # Ensuring we have data to use
@@ -73,3 +88,31 @@ def visualize(request):
 
 def about(request):
     return render(request, 'data/about.html')
+
+
+def rename_cols(column_names):
+    """
+    If the user inputs formal column names that have been changed
+    to be more friendly, we must reflect that in their input.
+    If not, a copy of the dictionary will be made.
+
+    Parameters
+    ---
+    column_names: dict
+        The dictionary of column names from the user's input
+
+    Returns
+    ---
+    newDict: dict
+        The dictionary of the renamed columns
+    """
+    newDict = {}
+    for key, values in column_names.items():
+        newDict[key] = []
+        for value in values:
+            if value in RENAME:
+                newDict[key].append(RENAME[value])
+            else:
+                newDict[key].append(value)
+
+    return newDict
