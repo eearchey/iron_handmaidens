@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+from scipy.signal import butter, sosfilt
 import plotly.graph_objs as go
 from plotly.offline import plot as plotly_plot
 
@@ -238,10 +240,21 @@ class EMGData:
 
 		return new
 
-	def bandpassing(self, colNames):
-		pass
 
 	def RMS(self, colNames, slidingWindow):
+		"""
+		# Calculate the Root-Mean-Square values for the specified columns.
+
+		Parameters
+		---
+		colNames : str or list
+			Name(s) of column(s) to return the RMS values for.
+
+		Returns
+		---
+		RMS : pd.Series or pd.DataFrame
+			Dataframe containing the input columns with calculates RMS values.
+		"""
 		new = pd.DataFrame()
 
 		if type(colNames) != list:
@@ -254,10 +267,73 @@ class EMGData:
 
 		return new
 
-	def butterworth(self):
-		pass
+
+	def bandpassing(self, colNames):
+		"""
+		# Calculate the Bandpass values for the specified columns.
+
+		Parameters
+		---
+		colNames : str or list
+			Name(s) of column(s) to return the Bandpass values for.
+
+		Returns
+		---
+		bandpassing : pd.Series or pd.DataFrame
+			Dataframe containing the input columns bandpassed to specified cutoffs.
+		"""
+		new = pd.DataFrame()
+
+		if type(colNames) != list:
+			colNames = [colNames]
+
+		signal = self.df.to_numpy()
+
+		#subtract mean from columns
+		for col in colNames:
+			new[col] = np.mean(self.df[col]) - self.df[col]
+
+		#rectify the signal
+		new = new.abs()
+		print(new.min())
+		print(new.max())
+		signal = new.to_numpy()
+
+
+		#bandpass the signal
+		signal = signal.T[0:2].astype(np.float)
+		order = 2
+		lowcut = 10.0
+		highcut = 500.0
+		nyq = 0.5 * 1024
+		low = lowcut / nyq
+		high = highcut / nyq
+		sos = butter(order, [low, high], analog=False, btype='band', output='sos')
+
+		signal = sosfilt(sos, signal)
+
+		signal = signal.T
+		i = 0
+		for col in colNames:
+			new[col] = signal[:,i]
+			i = i + 1
+
+		return new
 
 	def moving_average(self, colNames):
+		"""
+		# Calculate the moving average for the specified columns.
+
+		Parameters
+		---
+		colNames : str or list
+			Name(s) of column(s) to return the moving_average for.
+
+		Returns
+		---
+		moving_average : pd.Series or pd.DataFrame
+			Dataframe containing the input columns with calculates moving averages.
+		"""
 		new = pd.DataFrame()
 
 		if type(colNames) != list:
@@ -357,7 +433,7 @@ class EMGData:
 			Plotly express figure containing the EMG data. Data is sampled based on the maximum number of data points allowed.
 		"""
 		x =  x or self.timeName
-		y = y or self.find_columns(['RMS', 'Moving Average', 'CH'])
+		y = y or self.find_columns(['RMS', 'Moving Average', 'CH', 'Bandpass'])
 
 		fig = go.Figure()
 
@@ -441,9 +517,10 @@ class EMGData:
 
 		new.df[['Moving Average ' + channel[2:] for channel in self.channelNames]] = new.moving_average(self.channelNames)
 		new.df[['RMS ' + channel[2:] for channel in self.channelNames]] = new.RMS(self.channelNames, 100)
+		new.df[['Bandpass ' + channel[2:] for channel in self.channelNames]] = new.bandpassing(self.channelNames)
 
-		lines = new.find_columns(['RMS', 'Moving', 'CH'])
-		new.df[lines] = new.normalize(lines)
+		lines = new.find_columns(['RMS', 'Moving', 'CH', 'Bandpass'])
+		new.df[lines] = new.normalize(lines)     #re-implement with MVC
 
 		return new
 
