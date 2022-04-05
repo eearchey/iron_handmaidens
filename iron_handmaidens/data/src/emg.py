@@ -23,7 +23,7 @@ class EMGData:
 		self.windowTime = windowTime
 
 	@classmethod
-	def read_csv(cls, csv: str or object, channels: list, time: str, event: str, frequency: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
+	def read_csv(cls, csv: str or object, channelNames: list, timeName: str, eventName: str, frequency: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
 		"""
 		# Create EMGData object from a csv file.
 
@@ -31,11 +31,11 @@ class EMGData:
 		---
 		csv : str or filelike object
 			Path or filelike object for desired csv file containing EMG data.
-		channels : list
+		channelNames : list
 			List of column names for EMG data channels.
-		time : str
+		timeName : str
 			Name of column containing time data.
-		event : str
+		eventName : str
 			Name of column containing event data.
 		frequency : float, default 1024
 			Sampling rate of EMG data in Hz.
@@ -51,10 +51,10 @@ class EMGData:
 		"""
 		df = pd.read_csv(csv)
 
-		return cls(df, channels, time, event, frequency, maxDataPoints, windowTime)
+		return cls(df, channelNames, timeName, eventName, frequency, maxDataPoints, windowTime)
 
 	@classmethod
-	def read_mat(cls, mat: str or object, channels: list, time: str, event: str, frequency: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
+	def read_mat(cls, mat: str or object, channelNames: list, timeName: str, eventName: str, frequency: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
 		"""
 		# Create EMGData object from a mat file.
 
@@ -62,11 +62,11 @@ class EMGData:
 		---
 		mat : str or filelike object
 			Path or filelike object for desired csv file containing EMG data.
-		channels : list
+		channelName : list
 			List of column names for EMG data channels.
-		time : str
+		timeName : str
 			Name of column containing time data.
-		event : str
+		eventName : str
 			Name of column containing event data.
 		frequency : float, default 1024
 			Sampling rate of EMG data in Hz.
@@ -82,9 +82,9 @@ class EMGData:
 		"""
 		df = Converter().mat_to_df(mat).astype(float)
 
-		return cls(df, channels, time, event, frequency, maxDataPoints, windowTime)
+		return cls(df, channelNames, timeName, eventName, frequency, maxDataPoints, windowTime)
 
-	def copy(self):
+	def copy(self) -> 'EMGData':
 		"""
 		# Create a copy of the EMGData object.
 		This new object is a deep copy, meaning that the dataframe is copied as well. All subsequent changes to the dataframe will not affect the original object.
@@ -190,7 +190,7 @@ class EMGData:
 
 		return columns
 
-	def merge(self, other: 'EMGData'):
+	def merge(self, other: 'EMGData') -> 'EMGData':
 		"""
 		# Merge two sets of EMG data together.
 
