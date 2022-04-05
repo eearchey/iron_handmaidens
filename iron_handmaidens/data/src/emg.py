@@ -82,7 +82,7 @@ class EMGData:
 
 		return cls(df, channelNames, timeName, eventName, frequency, maxDataPoints, windowTime)
 
-	def copy(self):
+	def copy(self) -> 'EMGData':
 		"""
 		# Create a copy of the EMGData object.
 		This new object is a deep copy, meaning that the dataframe is copied as well. All subsequent changes to the dataframe will not affect the original object.
@@ -188,7 +188,7 @@ class EMGData:
 
 		return columns
 
-	def merge(self, other: 'EMGData'):
+	def merge(self, other: 'EMGData') -> 'EMGData':
 		"""
 		# Merge two sets of EMG data together.
 
