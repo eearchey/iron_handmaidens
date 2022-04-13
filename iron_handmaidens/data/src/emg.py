@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+from copy import deepcopy
 from scipy.signal import butter, sosfilt
 import plotly.graph_objs as go
 from plotly.offline import plot as plotly_plot
@@ -98,7 +98,13 @@ class EMGData:
 		copy : EMGData
 			Deep copy of EMGData object
 		"""
-		return EMGData(self.df.copy(), self.channelNames, self.timeName, self.eventName, frequency=self.frequency, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
+		return EMGData(	self.df.copy(),
+						deepcopy(self.channelNames),
+						deepcopy(self.timeName),
+						deepcopy(self.eventName),
+						frequency=deepcopy(self.frequency),
+						maxDataPoints=deepcopy(self.maxDataPoints),
+						windowTime=deepcopy(self.windowTime))
 
 	def __repr__(self) -> str:
 		"""The class represended as a string."""
@@ -282,27 +288,22 @@ class EMGData:
 		bandpassing : pd.Series or pd.DataFrame
 			Dataframe containing the input columns bandpassed to specified cutoffs.
 		"""
-		new = pd.DataFrame()
-
 		if type(colNames) != list:
 			colNames = [colNames]
 
-		signal = self.df.to_numpy()
+		new = self.df[colNames].copy()
 
 		#subtract mean from columns
-		for col in colNames:
-			new[col] = np.mean(self.df[col]) - self.df[col]
+		means = new.mean()
+		new = means - new
 
 		#rectify the signal
 		new = new.abs()
-		print(new.min())
-		print(new.max())
-		signal = new.to_numpy()
-
+		signal = new.to_numpy(dtype='float32')
 
 		#bandpass the signal
-		signal = signal.T[0:2].astype(np.float)
-		order = 2
+		signal = signal.T
+		order = len(signal)
 		lowcut = 10.0
 		highcut = 500.0
 		nyq = 0.5 * 1024
@@ -313,10 +314,8 @@ class EMGData:
 		signal = sosfilt(sos, signal)
 
 		signal = signal.T
-		i = 0
-		for col in colNames:
-			new[col] = signal[:,i]
-			i = i + 1
+		for idx, col in enumerate(colNames):
+			new[col] = signal[:,idx]
 
 		return new
 
@@ -344,7 +343,7 @@ class EMGData:
 
 		return new
 
-	def normalize(self, colNames: str or list) -> pd.Series or pd.DataFrame:
+	def normalize(self, colNames: str or list=None) -> pd.Series or pd.DataFrame:
 		"""
 		# Normalize the data in the specified columns between 0-1.
 
@@ -358,6 +357,8 @@ class EMGData:
 		normalized : pd.Series or pd.DataFrame
 			Dataframe containing the input columns normalized between 0-1.
 		"""
+		colNames = colNames or self.channelNames
+
 		new = pd.DataFrame()
 
 		if type(colNames) is not list:
@@ -515,12 +516,19 @@ class EMGData:
 		new.df['Elapse (s)'] = new.time.diff().fillna(0).cumsum() / 1000
 		new.timeName = 'Elapse (s)'
 
-		new.df[['Moving Average ' + channel[2:] for channel in self.channelNames]] = new.moving_average(self.channelNames)
-		new.df[['RMS ' + channel[2:] for channel in self.channelNames]] = new.RMS(self.channelNames, 100)
-		new.df[['Bandpass ' + channel[2:] for channel in self.channelNames]] = new.bandpassing(self.channelNames)
+		newChannels = ['Moving Average ' + channel[2:] for channel in self.channelNames]
+		new.df[newChannels] = new.moving_average(self.channelNames)
+		new.channelNames += newChannels
 
-		lines = new.find_columns(['RMS', 'Moving', 'CH', 'Bandpass'])
-		new.df[lines] = new.normalize(lines)     #re-implement with MVC
+		newChannels = ['RMS ' + channel[2:] for channel in self.channelNames]
+		new.df[newChannels] = new.RMS(self.channelNames, 100)
+		new.channelNames += newChannels
+
+		newChannels = ['Bandpass ' + channel[2:] for channel in self.channelNames]
+		new.df[newChannels] = new.bandpassing(self.channelNames)
+		new.channelNames += newChannels
+
+		new.channels = new.normalize()     #re-implement with MVC
 
 		return new
 
