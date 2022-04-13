@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+from copy import deepcopy
 from scipy.signal import butter, sosfilt
 import plotly.graph_objs as go
 from plotly.offline import plot as plotly_plot
@@ -98,7 +98,13 @@ class EMGData:
 		copy : EMGData
 			Deep copy of EMGData object
 		"""
-		return EMGData(self.df.copy(), self.channelNames, self.timeName, self.eventName, frequency=self.frequency, maxDataPoints=self.maxDataPoints, windowTime=self.windowTime)
+		return EMGData(	self.df.copy(),
+						deepcopy(self.channelNames),
+						deepcopy(self.timeName),
+						deepcopy(self.eventName),
+						frequency=deepcopy(self.frequency),
+						maxDataPoints=deepcopy(self.maxDataPoints),
+						windowTime=deepcopy(self.windowTime))
 
 	def __repr__(self) -> str:
 		"""The class represended as a string."""
