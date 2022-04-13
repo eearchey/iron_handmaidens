@@ -337,7 +337,7 @@ class EMGData:
 
 		return new
 
-	def normalize(self, colNames: str or list) -> pd.Series or pd.DataFrame:
+	def normalize(self, colNames: str or list=None) -> pd.Series or pd.DataFrame:
 		"""
 		# Normalize the data in the specified columns between 0-1.
 
@@ -351,6 +351,8 @@ class EMGData:
 		normalized : pd.Series or pd.DataFrame
 			Dataframe containing the input columns normalized between 0-1.
 		"""
+		colNames = colNames or self.channelNames
+
 		new = pd.DataFrame()
 
 		if type(colNames) is not list:
@@ -508,12 +510,19 @@ class EMGData:
 		new.df['Elapse (s)'] = new.time.diff().fillna(0).cumsum() / 1000
 		new.timeName = 'Elapse (s)'
 
-		new.df[['Moving Average ' + channel[2:] for channel in self.channelNames]] = new.moving_average(self.channelNames)
-		new.df[['RMS ' + channel[2:] for channel in self.channelNames]] = new.RMS(self.channelNames, 100)
-		new.df[['Bandpass ' + channel[2:] for channel in self.channelNames]] = new.bandpassing(self.channelNames)
+		newChannels = ['Moving Average ' + channel[2:] for channel in self.channelNames]
+		new.df[newChannels] = new.moving_average(self.channelNames)
+		new.channelNames += newChannels
 
-		lines = new.find_columns(['RMS', 'Moving', 'CH', 'Bandpass'])
-		new.df[lines] = new.normalize(lines)     #re-implement with MVC
+		newChannels = ['RMS ' + channel[2:] for channel in self.channelNames]
+		new.df[newChannels] = new.RMS(self.channelNames, 100)
+		new.channelNames += newChannels
+
+		newChannels = ['Bandpass ' + channel[2:] for channel in self.channelNames]
+		new.df[newChannels] = new.bandpassing(self.channelNames)
+		new.channelNames += newChannels
+
+		new.channels = new.normalize()     #re-implement with MVC
 
 		return new
 
