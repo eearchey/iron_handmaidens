@@ -282,27 +282,22 @@ class EMGData:
 		bandpassing : pd.Series or pd.DataFrame
 			Dataframe containing the input columns bandpassed to specified cutoffs.
 		"""
-		new = pd.DataFrame()
-
 		if type(colNames) != list:
 			colNames = [colNames]
 
-		signal = self.df.to_numpy()
+		new = self.df[colNames].copy()
 
 		#subtract mean from columns
-		for col in colNames:
-			new[col] = np.mean(self.df[col]) - self.df[col]
+		means = new.mean()
+		new = means - new
 
 		#rectify the signal
 		new = new.abs()
-		print(new.min())
-		print(new.max())
-		signal = new.to_numpy()
-
+		signal = new.to_numpy(dtype='float32')
 
 		#bandpass the signal
-		signal = signal.T[0:2].astype(np.float)
-		order = 2
+		signal = signal.T
+		order = len(signal)
 		lowcut = 10.0
 		highcut = 500.0
 		nyq = 0.5 * 1024
@@ -313,10 +308,8 @@ class EMGData:
 		signal = sosfilt(sos, signal)
 
 		signal = signal.T
-		i = 0
-		for col in colNames:
-			new[col] = signal[:,i]
-			i = i + 1
+		for idx, col in enumerate(colNames):
+			new[col] = signal[:,idx]
 
 		return new
 
