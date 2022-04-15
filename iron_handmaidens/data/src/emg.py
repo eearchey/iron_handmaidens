@@ -303,13 +303,17 @@ class EMGData:
 
 		#bandpass the signal
 		signal = signal.T
-		order = len(signal)
-		lowcut = 10.0
-		highcut = 500.0
-		nyq = 0.5 * 1024
-		low = lowcut / nyq
-		high = highcut / nyq
-		sos = butter(order, [low, high], analog=False, btype='band', output='sos')
+
+		#Could be treated as dynamic input variables
+		order = 2
+		lowcut = 3
+		highcut = 0.01
+
+		sos = butter(order, lowcut, 'lowpass', fs=1024, output='sos')
+
+		signal = sosfilt(sos, signal)
+
+		sos = butter(order, highcut, 'highpass', fs=1024, output='sos')
 
 		signal = sosfilt(sos, signal)
 
