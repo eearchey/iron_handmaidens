@@ -55,39 +55,47 @@ def visualize(request):
     """
     global data
 
-    # Ensuring we have data to use
-    if not data:
-        return redirect('data-home')
-    # Retrieving data from uploaded files if the user chooses to upload more after the first visualization.
-    if request.method == 'POST' and request.FILES['csv-file']:
-        files = request.FILES.getlist('csv-file')
-        tags = {'channels': ['CH1_4680', 'CH2_4680'], 'time': 'Timestamp_4680', 'event': 'Event_4680'}
-        for file in files:
-            fileExtension = file.name.split('.')[1]
-            if fileExtension == 'csv':
-                newData = EMGData.read_csv(file, **tags)
-            elif fileExtension == 'mat':
-                newData = EMGData.read_mat(file, **tags)
+    try:
+        # Ensuring we have data to use
+        if not data:
+            return redirect('data-error')
+        # Retrieving data from uploaded files if the user chooses to upload more after the first visualization.
+        if request.method == 'POST' and request.FILES['csv-file']:
+            files = request.FILES.getlist('csv-file')
+            tags = {'channels': ['CH1_4680', 'CH2_4680'], 'time': 'Timestamp_4680', 'event': 'Event_4680'}
+            for file in files:
+                fileExtension = file.name.split('.')[1]
+                if fileExtension == 'csv':
+                    newData = EMGData.read_csv(file, **tags)
+                elif fileExtension == 'mat':
+                    newData = EMGData.read_mat(file, **tags)
 
-            if not data:
-                data.append(newData)
-            else:
-                data[0] = data[0].merge(newData)
+                if not data:
+                    data.append(newData)
+                else:
+                    data[0] = data[0].merge(newData)
 
-        return redirect('/visualize/')
+            return redirect('/visualize/')
+        # preprocess the data
+        tables = []
+        plts = []
+        for dataset in data:
+            tables.append(dataset.quartiles().to_html())
+            preprocessed = dataset.preprocess()
+            plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
 
-    # preprocess the data
-    tables = []
-    plts = []
-    for dataset in data:
-        tables.append(dataset.quartiles().to_html())
-        preprocessed = dataset.preprocess()
-        plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
-
-    return render(request, 'data/visualize.html', {'data': zip(tables, plts)})
+        return render(request, 'data/visualize.html', {'data': zip(tables, plts)})
+        
+    except Exception as e:
+        print(e)
+        return redirect('data-error')
 
 def about(request):
     return render(request, 'data/about.html')
+
+
+def error(request):
+    return render(request, 'data/error.html')
 
 
 def rename_cols(column_names):
