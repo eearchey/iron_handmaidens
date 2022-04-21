@@ -347,7 +347,7 @@ class EMGData:
 
 		return new
 
-	def normalize(self, colNames: str or list=None) -> pd.Series or pd.DataFrame:
+	def normalize(self, originalChannels, colNames: str or list=None) -> pd.Series or pd.DataFrame:
 		"""
 		# Normalize the data in the specified columns between 0-1.
 
@@ -368,10 +368,15 @@ class EMGData:
 		if type(colNames) is not list:
 			colNames = [colNames]
 
+		print(originalChannels, colNames)
 		for col in colNames:
-			max = self.df[col].max()
-			min = self.df[col].min()
-			new[col] = (self.df[col] - min) / (max - min)
+			if col in originalChannels:
+				print(col)
+				new[col] = self.df[col]
+			else:
+				max = self.df[col].max()
+				min = self.df[col].min()
+				new[col] = (self.df[col] - min) / (max - min)
 
 		return new
 
@@ -393,7 +398,21 @@ class EMGData:
 		"""
 		columns = columns or self.channelNames
 
-		return self.df[columns].quantile(q)
+
+		quartileTable = self.df[columns].quantile(q)
+
+		percentileDictionary = {}
+		for percentile in q:
+			if percentile == 1.0:
+				percentileDictionary[float(percentile)] = "Max"
+			elif percentile == 0.0:
+				percentileDictionary[float(percentile)] = "Min"
+			else:
+				percentileDictionary[float(percentile)] = str(int(percentile*100)) + "th"
+
+		quartileTable = quartileTable.rename(index=percentileDictionary)
+		quartileTable = quartileTable.rename_axis("Percentile")
+		return quartileTable
 
 	def find_events(self, eventsCol: str=None) -> list:
 		"""
@@ -460,7 +479,7 @@ class EMGData:
 		fig.update_layout(
 			title="EMG Data",
 			xaxis_title=x,
-			yaxis_title="Normalized Values",
+			yaxis_title="Processed Values",
 			legend_title="Data Source",
 		)
 
@@ -520,19 +539,26 @@ class EMGData:
 		new.df['Elapse (s)'] = new.time.diff().fillna(0).cumsum() / 1000
 		new.timeName = 'Elapse (s)'
 
-		newChannels = ['Moving Average ' + channel[2:] for channel in self.channelNames]
-		new.df[newChannels] = new.moving_average(self.channelNames)
-		new.channelNames += newChannels
+		originalChannels = self.channelNames
 
-		newChannels = ['RMS ' + channel[2:] for channel in self.channelNames]
-		new.df[newChannels] = new.RMS(self.channelNames, 100)
-		new.channelNames += newChannels
-
+		#Bandpass original Channels
 		newChannels = ['Bandpass ' + channel[2:] for channel in self.channelNames]
+		bandpassChannels = newChannels
 		new.df[newChannels] = new.bandpassing(self.channelNames)
 		new.channelNames += newChannels
 
-		new.channels = new.normalize()     #re-implement with MVC
+		#Moving Average of Bandpass
+		newChannels = ['Moving Average ' + channel[2:] for channel in self.channelNames]
+		new.df[newChannels] = new.moving_average(bandpassChannels)
+		new.channelNames += newChannels
+
+		#RMS of Bandpass
+		newChannels = ['RMS ' + channel[2:] for channel in self.channelNames]
+		new.df[newChannels] = new.RMS(bandpassChannels, 100)
+		new.channelNames += newChannels
+
+		#Normalize all channels except original channels
+		new.channels = new.normalize(originalChannels)     #re-implement with MVC
 
 		return new
 

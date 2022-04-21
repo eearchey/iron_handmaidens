@@ -54,7 +54,6 @@ def visualize(request):
     This page shows the user's data in a visual form, using plotly. This can be from one or multiple data files.
     """
     global data
-
     try:
         # Ensuring we have data to use
         if not data:
