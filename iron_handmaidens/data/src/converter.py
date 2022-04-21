@@ -2,20 +2,6 @@ import os.path
 import scipy.io
 import pandas as pd
 
-EXCLUDE = ['__header__', '__version__', '__globals__']
-RENAME = {
-	'Shimmer_4680_TimestampSync_Unix_CAL':'Timestamp_4680',
-	'Shimmer_4680_ECG_EMG_Status1_CAL':'Status_4680',
-	'Shimmer_4680_EMG_CH1_24BIT_CAL':'CH1_4680',
-	'Shimmer_4680_EMG_CH2_24BIT_CAL':'CH2_4680',
-	'Shimmer_4680_Event_Marker_CAL':'Event_4680',
-	'Shimmer_5470_TimestampSync_Unix_CAL':'Timestamp_5470',
-	'Shimmer_5470_ECG_EMG_Status1_CAL':'Status_5470',
-	'Shimmer_5470_EMG_CH1_24BIT_CAL':'CH1_5470',
-	'Shimmer_5470_EMG_CH2_24BIT_CAL':'CH2_5470',
-	'Shimmer_5470_Event_Marker_CAL':'Event_5470'
-}
-
 class Converter():
 	"""
 	Class for converting mat files to csv files
@@ -23,7 +9,7 @@ class Converter():
 
 	version = '1.0.0'
 
-	def __init__(self, fileType: str='.mat', labelExclude: list=EXCLUDE, labelMap: dict=RENAME) -> None:
+	def __init__(self, fileType: str='.mat', labelExclude: list=None, labelMap: dict=None) -> None:
 		self.filetype = fileType
 		self.labelExclude = labelExclude
 		self.labelMap = labelMap
@@ -65,8 +51,13 @@ class Converter():
 			mat = self.rename_keys(mat)
 
 		try:
-			mat = {key: mat[key].flatten() for key in mat}
-			df = pd.DataFrame.from_dict(mat)
+			flatMat = {}
+			for key in mat:
+				try:
+					flatMat[key] = mat[key].flatten()
+				except:
+					print('Unable to convert column: ' + key + ' in file: ' + (infile if type(infile) == str else 'Temorary file'))
+			df = pd.DataFrame.from_dict(flatMat)
 		except ValueError as err:
 			print('Unable to convert'.ljust(20) + infile)
 			print('File could not be loaded as df')

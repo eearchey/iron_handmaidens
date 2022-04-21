@@ -1,7 +1,6 @@
 from tkinter.font import names
 from django.shortcuts import render, redirect
 
-from data.src.converter import RENAME
 from data.src.emg import EMGData
 
 data = []
@@ -17,7 +16,7 @@ def home(request):
     if request.method == 'POST' and request.FILES['csv-file']:
         # Change the file and column name forms into more friendly datatypes
         files = request.FILES.getlist('csv-file')
-        channelNames = rename_cols(dict(request.POST.lists()))
+        channelNames = dict(request.POST.lists())
 
         # Loop through all submitted files and differentiates between their formats to read them.
         for idx, file in enumerate(files):
@@ -79,12 +78,12 @@ def visualize(request):
         tables = []
         plts = []
         for dataset in data:
-            tables.append(dataset.quartiles().to_html())
+            tables.append(dataset.percentiles().to_html(justify='center', index=False))
             preprocessed = dataset.preprocess()
             plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
 
         return render(request, 'data/visualize.html', {'data': zip(tables, plts)})
-        
+
     except Exception as e:
         print(e)
         return redirect('data-error')
@@ -95,31 +94,3 @@ def about(request):
 
 def error(request):
     return render(request, 'data/error.html')
-
-
-def rename_cols(column_names):
-    """
-    If the user inputs formal column names that have been changed
-    to be more friendly, we must reflect that in their input.
-    If not, a copy of the dictionary will be made.
-
-    Parameters
-    ---
-    column_names: dict
-        The dictionary of column names from the user's input
-
-    Returns
-    ---
-    newDict: dict
-        The dictionary of the renamed columns
-    """
-    newDict = {}
-    for key, values in column_names.items():
-        newDict[key] = []
-        for value in values:
-            if value in RENAME:
-                newDict[key].append(RENAME[value])
-            else:
-                newDict[key].append(value)
-
-    return newDict
