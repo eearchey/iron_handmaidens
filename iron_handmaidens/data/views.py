@@ -73,7 +73,7 @@ def visualize(request):
         plts = []
         files = []
         for i, dataset in enumerate(data):
-            tables.append(dataset.quartiles().to_html())
+            tables.append(dataset.percentiles().to_html(justify='center', index=False))
             preprocessed = dataset.preprocess()
             plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
             files.append([f'data{i}.csv', preprocessed])
@@ -91,7 +91,7 @@ def download_zip(request):
         print(files)
         for file in files:
             file[1].data_to_csv(file[0])
-        with zipfile.ZipFile('data.zip', 'w') as zipMe:        
+        with zipfile.ZipFile('data.zip', 'w') as zipMe:
             for file in files:
                 zipMe.write(file[0], compress_type=zipfile.ZIP_DEFLATED)
         return FileResponse(
