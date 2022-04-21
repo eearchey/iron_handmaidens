@@ -48,6 +48,21 @@
         <br>
         <label for="participantName">Participant:</label>
         <input type="text" id="participantName" value="Participant DM1" onclick="this.select()"/>
+        <div class = "form-group">
+            <center><table>
+            <td>
+            <input type="button" id="MVC1" value="Upload MVC File 1" onclick="document.getElementById('MVC-file1').click();"/>
+            <input type="file" style="display:none;" id="MVC-file1" name="MVC-file1" accept=".csv, .mat" multiple="false">
+            <h4 id="file-nameMVC1"></h4>
+            </td>
+            
+            <td>
+            <input type="button" id="MVC2" value="Upload MVC File 2" onclick="document.getElementById('MVC-file2').click();"/>
+            <input type="file" style="display:none;" id="MVC-file2" name="MVC-file2" accept=".csv, .mat" multiple="false">
+            <h4 id="file-nameMVC2"></h4>
+            </td>
+            </table></center>
+        </div>
         <br>
         <h3>Please begin by uploading your csv or mat file(s).</h3>
         <br>
@@ -68,17 +83,6 @@
     <h3>Thank you for uploading the file! This may take a moment.</h3>
 </div>
 
-<div>
-    <br><br>
-    <h3>Flow of Data:</h3>
-</div>
-
-<head>
-    {% load static %} <!-- Prepare django to load static files -->
- </head>
- <body>
-     <img src={% static "Flowchart.png" %}>
- </body>
 
 
 
@@ -121,6 +125,38 @@
         y = document.getElementsByClassName("thanks");
         for (j = 0; j < y.length; j++) {
             y[j].style.display = 'block';
+        }
+    }
+
+    let inputMVC1 = document.getElementById('MVC-file1');
+    let file_namesMVC1 = document.getElementById('file-nameMVC1');
+    inputMVC1.addEventListener('change', showFileName1);
+    function showFileName1(event) {
+        let inputMVC1 = event.srcElement;
+        file_namesMVC1.innerHTML = 'File: <br />';
+        /*Empty array to store channel names for each file submitted*/
+        for (let j = 0; j < inputMVC1.files.length; j++) {
+            let file = inputMVC1.files[j]
+            let fileName = file.name;
+            file_namesMVC1.innerHTML += fileName;
+            
+            /*Channel names are by the format 'ch1Namej','ch2Namej','timeStampj','eventMarkerj*/
+        }
+    }
+
+    let inputMVC2 = document.getElementById('MVC-file2');
+    let file_namesMVC2 = document.getElementById('file-nameMVC2');
+    inputMVC2.addEventListener('change', showFileName2);
+    function showFileName2(event) {
+        let inputMVC2 = event.srcElement;
+        file_namesMVC2.innerHTML = 'File: <br />';
+        /*Empty array to store channel names for each file submitted*/
+        for (let j = 0; j < inputMVC2.files.length; j++) {
+            let file = inputMVC2.files[j]
+            let fileName = file.name;
+            file_namesMVC2.innerHTML += fileName;
+            
+            /*Channel names are by the format 'ch1Namej','ch2Namej','timeStampj','eventMarkerj*/
         }
     }
 </script>
