@@ -80,7 +80,7 @@ def visualize(request):
     tables = []
     plts = []
     for dataset in data:
-        tables.append(dataset.quartiles().to_html())
+        tables.append(dataset.quartiles([1, 0.9, 0.5, 0.1, 0]).to_html())
         preprocessed = dataset.preprocess()
         plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
 
