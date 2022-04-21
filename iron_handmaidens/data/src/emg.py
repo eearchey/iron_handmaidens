@@ -525,6 +525,16 @@ class EMGData:
 
 		return self.fig_to_html(fig)
 
+	def data_to_csv(self, fileName) -> str:
+		"""
+		# Convert EMG data to a csv file
+
+		Parameters
+		---
+		
+		"""
+		self.df.to_csv(fileName)
+
 	def preprocess(self) -> 'EMGData':
 		"""
 		# Process the data to make it ready for analysis.

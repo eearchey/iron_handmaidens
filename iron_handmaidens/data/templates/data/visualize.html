@@ -25,75 +25,8 @@
 			<br>
 			{{ plt | safe }}
 		{% endfor %}
+		<input type="button" value="Download" onclick="window.open('download_zip')">
 	</div>
-
-	<p>
-		<center>
-		<div class = "begin">
-			<form method="post" enctype="multipart/form-data">
-				{% csrf_token %}
-				<!---Allows user to upload more data after their first data was already visualized.-->
-				<div class = "form-group">
-					<input type="button" id="uploadFile" value="Upload More Files" onclick="document.getElementById('csv-file').click();" style="float:center;"/>
-					<input type="file" style="display:none;" id="csv-file" name="csv-file" accept=".csv, .mat" multiple="true">
-					<h4 id="file-names">No new files selected yet.</h4>
-				</div>
-				<div class = "go form-group">
-					<br>
-					<h3>Once your file has been attached, click Submit. <br> Note: These new files will be added on top of your original files.</h3>
-					<button id="advance" type="submit" onclick="thanks()" class="btn btn-primary">Submit</button>
-				</div>
-			</form>
-		</div>
-		</center>
-
-		<!---Message ensuring the user waits while the data is processed.-->
-		<center>
-		<div class = "thanks">
-			<h3>Thank you for uploading the file! This may take a moment.</h3>
-		</div>
-		</center>
-
-		<script type = "text/javascript">
-			/* Hiding elements that should only appear when prompted. */
-			let x = document.getElementsByClassName("thanks");
-			for (let i = 0; i < x.length; i++) {
-				x[i].style.display = 'none';
-			}
-			x = document.getElementsByClassName("go");
-			for (i = 0; i < x.length; i++) {
-				x[i].style.display = 'none';
-			}
-			/* Watching for new files to be uploaded. */
-			let input = document.getElementById('csv-file');
-			let file_names = document.getElementById('file-names');
-			input.addEventListener('change', showFileName);
-			function showFileName(event) {
-				let input = event.srcElement;
-				/* Showing user what files they have uploaded and showing submit button. */
-				file_names.innerHTML = "New Files: <br />";
-				for (let j = 0; j < input.files.length; j++) {
-					let fileName = input.files[j].name;
-					file_names.innerHTML += fileName + "<br />";
-				}
-				let y = document.getElementsByClassName("go");
-				for (j = 0; j < y.length; j++) {
-					y[j].style.display = 'block';
-				}
-			}
-			function thanks() {
-				/* Showing wait message. */
-				let y = document.getElementsByClassName("begin");
-				for (let j = 0; j < y.length; j++) {
-					y[j].style.display = 'none';
-				}
-				y = document.getElementsByClassName("thanks");
-				for (j = 0; j < y.length; j++) {
-					y[j].style.display = 'block';
-				}
-			}
-		</script>
-	</p>
 </body>
 
 {% endblock content %}

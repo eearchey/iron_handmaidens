@@ -2,8 +2,12 @@ from tkinter.font import names
 from django.shortcuts import render, redirect
 
 from data.src.emg import EMGData
+import glob, os
+import zipfile
+from django.http import FileResponse
+import traceback
 
-data = []
+data, files = [], []
 
 def home(request):
     """
@@ -11,6 +15,11 @@ def home(request):
     and goes to the visualize page. There is also a safety feature for if the user does not upload a file.
     """
     global data
+
+    for zip_file in glob.glob('*.zip'):
+        os.remove(zip_file)
+    for csv_file in glob.glob('*.csv'):
+        os.remove(csv_file)
 
     # After the POST, this checks that the user has submitted a file or files into the backend.
     if request.method == 'POST' and request.FILES['csv-file']:
@@ -53,40 +62,48 @@ def visualize(request):
     This page shows the user's data in a visual form, using plotly. This can be from one or multiple data files.
     """
     global data
+    global files
     try:
         # Ensuring we have data to use
         if not data:
+            print('no data to process!')
             return redirect('data-error')
-        # Retrieving data from uploaded files if the user chooses to upload more after the first visualization.
-        if request.method == 'POST' and request.FILES['csv-file']:
-            files = request.FILES.getlist('csv-file')
-            tags = {'channels': ['CH1_4680', 'CH2_4680'], 'time': 'Timestamp_4680', 'event': 'Event_4680'}
-            for file in files:
-                fileExtension = file.name.split('.')[1]
-                if fileExtension == 'csv':
-                    newData = EMGData.read_csv(file, **tags)
-                elif fileExtension == 'mat':
-                    newData = EMGData.read_mat(file, **tags)
-
-                if not data:
-                    data.append(newData)
-                else:
-                    data[0] = data[0].merge(newData)
-
-            return redirect('/visualize/')
         # preprocess the data
         tables = []
         plts = []
-        for dataset in data:
-            tables.append(dataset.percentiles().to_html(justify='center', index=False))
+        files = []
+        for i, dataset in enumerate(data):
+            tables.append(dataset.quartiles().to_html())
             preprocessed = dataset.preprocess()
             plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
-
+            files.append([f'data{i}.csv', preprocessed])
         return render(request, 'data/visualize.html', {'data': zip(tables, plts)})
 
     except Exception as e:
         print(e)
+        print(traceback.format_exc())
         return redirect('data-error')
+
+
+def download_zip(request):
+    try:
+        global files
+        print(files)
+        for file in files:
+            file[1].data_to_csv(file[0])
+        with zipfile.ZipFile('data.zip', 'w') as zipMe:        
+            for file in files:
+                zipMe.write(file[0], compress_type=zipfile.ZIP_DEFLATED)
+        return FileResponse(
+            open('data.zip', 'rb'),
+            as_attachment=True,
+            filename='data.zip'
+        )
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
+        return redirect('data-error')
+
 
 def about(request):
     return render(request, 'data/about.html')
