@@ -17,24 +17,6 @@
         text-align: left;
         font-family: AlteHaasGrotesk;
     }
-    input[type="button"] {
-        background-color: #4285F4;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        cursor: pointer;
-        font-family: AlteHaasGroteskBold;
-        padding: 14px 40px;
-    }
-    button{
-        background-color: #4285F4;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        cursor: pointer;
-        font-family: AlteHaasGroteskBold;
-        padding: 14px 40px;
-    }
     div {
         text-align: center;
     }
@@ -42,13 +24,17 @@
         font-family: AlteHaasGroteskBold;
         font-size: small;
     }
+    .data{
+        padding-left: 20%;
+    }
 </style>
-<br><br><br>
+<br>
 <h3>Iron Handmaidens</h3>
 <h4>Emily Archey, Josh Hourigan, Sean Macander, Alden Moreton, Vyas Padmanabhan</h4>
 
 <p><center>This application takes in a .csv or .mat file full of EMG data and processes the data to give the user a graphical visualization.</center></p>
 <br>
+<div class="data">
 <h5>Usage</h5>
 <p><b>Home Page</b> <br>
     &nbsp;<i>Upload files</i><br>
@@ -69,4 +55,5 @@
     &nbsp;In the terminal, the local URL should be displayed. Paste this into your browser of choice (Chrome, Safari, etc.)<br>
     &nbsp;You are now in the application!<br>
 </p>
+</div>
 {% endblock content %}
