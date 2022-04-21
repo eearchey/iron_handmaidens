@@ -368,10 +368,8 @@ class EMGData:
 		if type(colNames) is not list:
 			colNames = [colNames]
 
-		print(originalChannels, colNames)
 		for col in colNames:
 			if col in originalChannels:
-				print(col)
 				new[col] = self.df[col]
 			else:
 				max = self.df[col].max()
@@ -380,13 +378,13 @@ class EMGData:
 
 		return new
 
-	def quartiles(self, q: list or float=[0.9, 0.5, 0.1], columns: list or str=None) -> pd.DataFrame:
+	def percentiles(self, percentages: list or float=[0.9, 0.5, 0.1], columns: list or str=None) -> pd.DataFrame:
 		"""
-		# Calculate the specified quartiles of the data in the specified columns.
+		# Calculate the specified percentiles of the data in the specified columns.
 
 		Parameters
 		---
-		q : list or float, default [0.9, 0.5, 0.1]
+		percentages : list or float, default [0.9, 0.5, 0.1]
 			List of the quartiles to calculate, or a single quartile to calculate.
 		columns : list or str, default self.channelNames
 			Name(s) of column(s) to calculate the quartiles of.
@@ -399,20 +397,22 @@ class EMGData:
 		columns = columns or self.channelNames
 
 
-		quartileTable = self.df[columns].quantile(q)
+		percentileTable = self.df[columns].quantile(percentages)
 
-		percentileDictionary = {}
-		for percentile in q:
-			if percentile == 1.0:
-				percentileDictionary[float(percentile)] = "Max"
-			elif percentile == 0.0:
-				percentileDictionary[float(percentile)] = "Min"
+		percentileNames = []
+		for percentile in percentages:
+			if percentile == 0.9:
+				percentileNames.append("Peak (90%)")
+			elif percentile == 0.5:
+				percentileNames.append("Median (50%)")
+			elif percentile == 0.1:
+				percentileNames.append("Static (10%)")
 			else:
-				percentileDictionary[float(percentile)] = str(int(percentile*100)) + "th"
+				percentileNames.append(str(int(percentile*100)) + "th")
 
-		quartileTable = quartileTable.rename(index=percentileDictionary)
-		quartileTable = quartileTable.rename_axis("Percentile")
-		return quartileTable
+		percentileTable['Percentile'] = percentileNames
+
+		return percentileTable[['Percentile'] + [col for col in percentileTable.columns if col != 'Percentile']]
 
 	def find_events(self, eventsCol: str=None) -> list:
 		"""
@@ -566,18 +566,18 @@ class EMGData:
 		originalChannels = self.channelNames
 
 		#Bandpass original Channels
-		newChannels = ['Bandpass ' + channel[2:] for channel in self.channelNames]
+		newChannels = ['Bandpass (' + channel + ')' for channel in self.channelNames]
 		bandpassChannels = newChannels
 		new.df[newChannels] = new.bandpassing(self.channelNames)
 		new.channelNames += newChannels
 
 		#Moving Average of Bandpass
-		newChannels = ['Moving Average ' + channel[2:] for channel in self.channelNames]
+		newChannels = ['Moving Average (' + channel + ')' for channel in self.channelNames]
 		new.df[newChannels] = new.moving_average(bandpassChannels)
 		new.channelNames += newChannels
 
 		#RMS of Bandpass
-		newChannels = ['RMS ' + channel[2:] for channel in self.channelNames]
+		newChannels = ['RMS (' + channel + ')' for channel in self.channelNames]
 		new.df[newChannels] = new.RMS(bandpassChannels, 100)
 		new.channelNames += newChannels
 

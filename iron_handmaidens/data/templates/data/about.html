@@ -34,7 +34,20 @@
 
 <p><center>This application takes in a .csv or .mat file full of EMG data and processes the data to give the user a graphical visualization.</center></p>
 <br>
-<div class="data">
+
+<div>
+    <br><br>
+    <pre><h3>                                                                                                                       Flow of Data: </h3></pre>
+</div>
+
+<head>
+    {% load static %} <!-- Prepare django to load static files -->
+ </head>
+ <body>
+     <img align="right" src={% static "Flowchart.png" %}>
+ </body>
+
+
 <h5>Usage</h5>
 <p><b>Home Page</b> <br>
     &nbsp;<i>Upload files</i><br>
