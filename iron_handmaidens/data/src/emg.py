@@ -525,6 +525,30 @@ class EMGData:
 
 		return self.fig_to_html(fig)
 
+	def data_to_csv(self, x: str=None, y: list or str=None, visible=None, eventMarkers=None) -> str:
+		"""
+		# Convert EMG data to a csv file
+
+		Parameters
+		---
+		x : str, default self.timeName
+			Name of the column to use as the x-axis.
+		y : list or str, self.channelNames
+			Name(s) of the column(s) to use as the y-axis.
+		visible : list, default all visible
+			Name of the columns to make visible by default.
+		eventMarkers : str, default no events marked
+			Name of the column containing the events.
+
+		Returns
+		---
+		html : str
+			HTML div string containing the plotly express figure.
+		"""
+		self.df.to_csv(x)
+
+		return
+
 	def preprocess(self) -> 'EMGData':
 		"""
 		# Process the data to make it ready for analysis.
