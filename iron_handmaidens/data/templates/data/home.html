@@ -14,6 +14,7 @@
     h4 {
         text-align: center;
         font-family: AlteHaasGroteskBold;
+        font-size: small;
     }
     input[type="button"] {
         background-color: #4285F4;
@@ -48,6 +49,8 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <br>
+        <h3>Please begin by uploading your csv or mat file(s).</h3>
+        <br>
         <label for="participantName">Participant:</label>
         <input type="text" id="participantName" value="Participant DM1" onclick="this.select()"/>
         <div class = "form-group">
@@ -57,7 +60,7 @@
             <input type="button" id="MVC1" value="Upload MVC File 1" onclick="document.getElementById('MVC-file1').click();"/>
             <input type="file" style="display:none;" id="MVC-file1" name="MVC-file1" accept=".csv, .mat" multiple="false">
             </div>
-            <h4 id="file-nameMVC1"></h4>
+            <h4 id="file-nameMVC1">No files selected yet.</h4>
             </td>
             
             <td>
@@ -65,18 +68,45 @@
             <input type="button" id="MVC2" value="Upload MVC File 2" onclick="document.getElementById('MVC-file2').click();"/>
             <input type="file" style="display:none;" id="MVC-file2" name="MVC-file2" accept=".csv, .mat" multiple="false">
             </div>
-            <h4 id="file-nameMVC2"></h4>
+            <h4 id="file-nameMVC2">No files selected yet.</h4>
             </td>
             </table></center>
         </div>
-        <br>
-        <h3>Please begin by uploading your csv or mat file(s).</h3>
-        <br>
+        <br><br>
         <div class = "form-group">
-            <input type="button" id="uploadFile" value="Upload Files" onclick="document.getElementById('csv-file').click();"/>
-            <input type="file" style="display:none;" id="csv-file" name="csv-file" accept=".csv, .mat" multiple="true">
-            <br><br>
-            <h4 id="file-names">No files selected yet.</h4>
+            <center><table>
+            <td>
+            <div padding-left="33%">
+            <input type="button" id="MG1" value="Upload Main File 1" onclick="document.getElementById('MG-file1').click();"/>
+            <input type="file" style="display:none;" id="MG-file1" name="MG-file1" accept=".csv, .mat" multiple="false">
+            </div>
+            <h4 id="file-nameMG1">No files selected yet.</h4>
+            </td>
+
+            <td>
+            <div padding-left="33%">
+            <input type="button" id="MG2" value="Upload Main File 2" onclick="document.getElementById('MG-file2').click();"/>
+            <input type="file" style="display:none;" id="MG-file2" name="MG-file2" accept=".csv, .mat" multiple="false">
+            </div>
+            <h4 id="file-nameMG2">No files selected yet.</h4>
+            </td>
+            </table></center>
+        </div>
+        <div class = "form-group">
+            <center>
+                <table>
+                    <td>
+                        <label for="SampleRate">Sample Rate (Hz):</label>
+                        <input type="text" id="SampleRate" value="1024"/>
+                        <label for="LowPass">Low Pass (Hz):</label>
+                        <input type="text" id="LowPass" value="1"/>
+                        <label for="HighPass">High Pass (Hz):</label>
+                        <input type="text" id="HighPass" value="3"/>
+                        <label for="Order">Order (#):</label>
+                        <input type="text" id="Order" value="1"/>
+                    </td>
+                </table>
+            </center>
         </div>
         <div class = "go form-group">
             <h3>Once your file has been attached and the form fields have been filled, click Submit.</h3>
@@ -86,7 +116,7 @@
 </div>
 
 <div class = "thanks">
-    <h3>Thank you for uploading the file! This may take a moment.</h3>
+    <h3>Thank you for uploading the files! This may take a moment.</h3>
 </div>
 
 
@@ -101,28 +131,52 @@
     for (i = 0; i < x.length; i++) {
         x[i].style.display = 'none';
     }
-    let input = document.getElementById('csv-file');
-    let file_names = document.getElementById('file-names');
-    input.addEventListener('change', showFileName);
-    function showFileName(event) {
-        let input = event.srcElement;
-        file_names.innerHTML = 'Files: <br />';
-        /*Empty array to store channel names for each file submitted*/
-        for (let j = 0; j < input.files.length; j++) {
-            let file = input.files[j]
-            let fileName = file.name;
-            let dataName = fileName.split('.')[0].split('_')[1];
-            let columnPrefix = 'Shimmer_' + dataName + '_';
-            let columnSuffix = '_' + dataName;
-            file_names.innerHTML += fileName + '<br><label for="ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="ch1Name' + j +'" name="ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="ch2Name' + j +'" name="ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
-            file_names.innerHTML += '<br><label for="timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="timestamp' + j +'" name="timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="eventMarker' + j +'" name="eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
-            /*Channel names are by the format 'ch1Namej','ch2Namej','timeStampj','eventMarkerj*/
-        }
+
+    
+    let inputMG1 = document.getElementById('MG-file1');
+    let file_namesMG1 = document.getElementById('file-nameMG1');
+    inputMG1.addEventListener('change', showFileNameMG1);
+    function showFileNameMG1(event) {
+        let inputMG1 = event.srcElement;
+        file_namesMG1.innerHTML = 'Files: <br />';
+        let file = inputMG1.files[0]
+        let fileName = file.name;
+        let dataName = fileName.split('.')[0].split('_')[1];
+        let columnPrefix = 'Shimmer_' + dataName + '_';
+        let columnSuffix = '_' + dataName;
+        file_namesMG1.innerHTML += fileName + '<br><label for="MG1ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MG1ch1Name" name="MG1ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MG1ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MG1ch2Name" name="MG1ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
+        file_namesMG1.innerHTML += '<br><label for="MG1timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MG1timestamp" name="MG1timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MG1eventMarker" name="MG1eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
+        /*Channel names: are by the format 'MG1ch1Name','MG1ch2Name'
+        Timestamp: 'MG1timeStamp'
+        Event Marker: 'MG1eventMarker*/
         let y = document.getElementsByClassName("go");
         for (j = 0; j < y.length; j++) {
             y[j].style.display = 'block';
         }
     }
+
+    let inputMG2 = document.getElementById('MG-file2');
+    let file_namesMG2 = document.getElementById('file-nameMG2');
+    inputMG2.addEventListener('change', showFileNameMG2);
+    function showFileNameMG2(event) {
+        let inputMG2 = event.srcElement;
+        file_namesMG2.innerHTML = 'Files: <br />';
+        let file = inputMG2.files[0]
+        let fileName = file.name;
+        let dataName = fileName.split('.')[0].split('_')[1];
+        let columnPrefix = 'Shimmer_' + dataName + '_';
+        let columnSuffix = '_' + dataName;
+        file_namesMG2.innerHTML += fileName + '<br><label for="MG2ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MG2ch1Name" name="MG2ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MG2ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MG2ch2Name" name="MG2ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
+        file_namesMG2.innerHTML += '<br><label for="MG2timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MG2timestamp" name="MG2timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MG2eventMarker" name="MG2eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
+        /*Channel names: are by the format 'MG2ch1Name','MG2ch2Name'
+        Timestamp: 'MG2timeStamp'
+        Event Marker: 'MG2eventMarker*/
+        let y = document.getElementsByClassName("go");
+        for (j = 0; j < y.length; j++) {
+            y[j].style.display = 'block';
+        }
+    }
+
     function thanks() {
         let y = document.getElementsByClassName("begin");
         for (let j = 0; j < y.length; j++) {
@@ -140,18 +194,16 @@
     function showFileName1(event) {
         let inputMVC1 = event.srcElement;
         file_namesMVC1.innerHTML = 'File 1: <br />';
-        /*Empty array to store channel names for each file submitted*/
-        for (let j = 0; j < inputMVC1.files.length; j++) {
-            let file = inputMVC1.files[j]
-            let fileName = file.name;
-            let dataName = fileName.split('.')[0].split('_')[1];
-            let columnPrefix = 'Shimmer_' + dataName + '_';
-            let columnSuffix = '_' + dataName;
-            file_namesMVC1.innerHTML += fileName + '<br><label for="ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="ch1Name' + j +'" name="ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="ch2Name' + j +'" name="ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
-            file_namesMVC1.innerHTML += '<br><label for="timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="timestamp' + j +'" name="timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="eventMarker' + j +'" name="eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
-            
-            /*Channel names are by the format 'ch1Namej','ch2Namej','timeStampj','eventMarkerj*/
-        }
+        let file = inputMVC1.files[0]
+        let fileName = file.name;
+        let dataName = fileName.split('.')[0].split('_')[1];
+        let columnPrefix = 'Shimmer_' + dataName + '_';
+        let columnSuffix = '_' + dataName;
+        file_namesMVC1.innerHTML += fileName + '<br><label for="MVC1ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MVC1ch1Name" name="MVC1ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MVC1ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MVC1ch2Name" name="MVC1ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
+        file_namesMVC1.innerHTML += '<br><label for="MVC1timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MVC1timestamp" name="MVC1timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MVC1eventMarker" name="MVC1eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
+        /*Channel names: are by the format 'MVC1ch1Name','MVC1ch2Name'
+        Timestamp: 'MVC1timeStamp'
+        Event Marker: 'MVC1eventMarker*/
     }
 
     let inputMVC2 = document.getElementById('MVC-file2');
@@ -160,19 +212,16 @@
     function showFileName2(event) {
         let inputMVC2 = event.srcElement;
         file_namesMVC2.innerHTML = 'File 2: <br />';
-        /*Empty array to store channel names for each file submitted*/
-        for (let j = 0; j < inputMVC2.files.length; j++) {
-            let file = inputMVC2.files[j]
-            let fileName = file.name;
-            let dataName = fileName.split('.')[0].split('_')[1];
-            let columnPrefix = 'Shimmer_' + dataName + '_';
-            let columnSuffix = '_' + dataName;
-            file_namesMVC2.innerHTML += fileName + '<br><label for="ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="ch1Name' + j +'" name="ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="ch2Name' + j +'" name="ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
-            file_namesMVC2.innerHTML += '<br><label for="timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="timestamp' + j +'" name="timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="eventMarker' + j +'" name="eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
-            
-            
-            /*Channel names are by the format 'ch1Namej','ch2Namej','timeStampj','eventMarkerj*/
-        }
+        let file = inputMVC2.files[0]
+        let fileName = file.name;
+        let dataName = fileName.split('.')[0].split('_')[1];
+        let columnPrefix = 'Shimmer_' + dataName + '_';
+        let columnSuffix = '_' + dataName;
+        file_namesMVC2.innerHTML += fileName + '<br><label for="MVC2ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MVC2ch1Name" name="MVC2ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MVC2ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MVC2ch2Name" name="MVC2ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
+        file_namesMVC2.innerHTML += '<br><label for="MVC2timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MVC2timestamp" name="MVC2timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MVC2eventMarker" name="MVC2eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
+        /*Channel names: are by the format 'MVC2ch1Name','MVC2ch2Name'
+        Timestamp: 'MVC2timeStamp'
+        Event Marker: 'MVC2eventMarker*/
     }
 </script>
 {% endblock content %}
