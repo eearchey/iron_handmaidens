@@ -32,6 +32,9 @@ def home(request):
 
         # Loop through all submitted files and differentiates between their formats to read them.
         for idx, filename in enumerate(files):
+            if filename.startswith('MVC'):
+                print(filename)
+                continue
             # Names of the columns in the file being prepared for the contructor
             tags = {
                 'channelNames': [channelNames['ch1Name'][idx], channelNames['ch2Name'][idx]],
@@ -41,16 +44,30 @@ def home(request):
             # Contructing the EMGData object based on the input file type
 
 
+            if filename.endswith('1'):
+                mvc_filename = 'MVC-file' + '1'
+            else:
+                mvc_filename = 'MVC-file' + '2'
+
             file = request.FILES[filename]
+            mvc_file = request.FILES[mvc_filename]
 
             fileExtension = file.name.split('.')[1]
+            mvc_fileExtension = mvc_file.name.split('.')[1]
+
             if fileExtension == 'csv':
                 newData = EMGData.read_csv(file, **tags)
             elif fileExtension == 'mat':
                 newData = EMGData.read_mat(file, **tags)
 
+            if mvc_fileExtension == 'csv':
+                mvc_Data = EMGData.read_csv(mvc_file, **tags)
+            elif mvc_fileExtension == 'mat':
+                mvc_Data = EMGData.read_mat(mvc_file, **tags)
+
             # Storing the EMGData
             if not data:
+                print('EMG')
                 data.append(newData)
             else:
                 try:
@@ -80,6 +97,7 @@ def visualize(request):
         plts = []
         files = []
         for i, dataset in enumerate(data):
+            print('visualize')
             tables.append(dataset.percentiles().to_html(justify='center', index=False))
             preprocessed = dataset.preprocess()
             plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
