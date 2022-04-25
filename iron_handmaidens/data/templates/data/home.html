@@ -41,8 +41,8 @@
         font-family: AlteHaasGroteskBold;
         font-size: small;
     }
-    
-    
+
+
 </style>
 <h1>{% block title %}Iron Handmaidens{% endblock %}</h1>
 <div class = "begin">
@@ -62,7 +62,7 @@
             </div>
             <h4 id="file-nameMVC1">No files selected yet.</h4>
             </td>
-            
+
             <td>
             <div padding-right="33%">
             <input type="button" id="MVC2" value="Upload MVC File 2" onclick="document.getElementById('MVC-file2').click();"/>
@@ -132,7 +132,7 @@
         x[i].style.display = 'none';
     }
 
-    
+
     let inputMG1 = document.getElementById('MG-file1');
     let file_namesMG1 = document.getElementById('file-nameMG1');
     inputMG1.addEventListener('change', showFileNameMG1);
@@ -144,8 +144,8 @@
         let dataName = fileName.split('.')[0].split('_')[1];
         let columnPrefix = 'Shimmer_' + dataName + '_';
         let columnSuffix = '_' + dataName;
-        file_namesMG1.innerHTML += fileName + '<br><label for="MG1ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MG1ch1Name" name="MG1ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MG1ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MG1ch2Name" name="MG1ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
-        file_namesMG1.innerHTML += '<br><label for="MG1timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MG1timestamp" name="MG1timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MG1eventMarker" name="MG1eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
+        file_namesMG1.innerHTML += fileName + '<br><label for="MG1ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MG1ch1Name" name="ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MG1ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MG1ch2Name" name="ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
+        file_namesMG1.innerHTML += '<br><label for="MG1timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MG1timestamp" name="timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MG1eventMarker" name="eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
         /*Channel names: are by the format 'MG1ch1Name','MG1ch2Name'
         Timestamp: 'MG1timeStamp'
         Event Marker: 'MG1eventMarker*/
@@ -166,8 +166,8 @@
         let dataName = fileName.split('.')[0].split('_')[1];
         let columnPrefix = 'Shimmer_' + dataName + '_';
         let columnSuffix = '_' + dataName;
-        file_namesMG2.innerHTML += fileName + '<br><label for="MG2ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MG2ch1Name" name="MG2ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MG2ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MG2ch2Name" name="MG2ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
-        file_namesMG2.innerHTML += '<br><label for="MG2timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MG2timestamp" name="MG2timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MG2eventMarker" name="MG2eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
+        file_namesMG2.innerHTML += fileName + '<br><label for="MG2ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MG2ch1Name" name="ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MG2ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MG2ch2Name" name="ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
+        file_namesMG2.innerHTML += '<br><label for="MG2timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MG2timestamp" name="timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MG2eventMarker" name="eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
         /*Channel names: are by the format 'MG2ch1Name','MG2ch2Name'
         Timestamp: 'MG2timeStamp'
         Event Marker: 'MG2eventMarker*/
@@ -199,8 +199,8 @@
         let dataName = fileName.split('.')[0].split('_')[1];
         let columnPrefix = 'Shimmer_' + dataName + '_';
         let columnSuffix = '_' + dataName;
-        file_namesMVC1.innerHTML += fileName + '<br><label for="MVC1ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MVC1ch1Name" name="MVC1ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MVC1ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MVC1ch2Name" name="MVC1ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
-        file_namesMVC1.innerHTML += '<br><label for="MVC1timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MVC1timestamp" name="MVC1timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MVC1eventMarker" name="MVC1eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
+        file_namesMVC1.innerHTML += fileName + '<br><label for="MVC1ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MVC1ch1Name" name="ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MVC1ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MVC1ch2Name" name="ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
+        file_namesMVC1.innerHTML += '<br><label for="MVC1timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MVC1timestamp" name="timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MVC1eventMarker" name="eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
         /*Channel names: are by the format 'MVC1ch1Name','MVC1ch2Name'
         Timestamp: 'MVC1timeStamp'
         Event Marker: 'MVC1eventMarker*/
@@ -217,8 +217,8 @@
         let dataName = fileName.split('.')[0].split('_')[1];
         let columnPrefix = 'Shimmer_' + dataName + '_';
         let columnSuffix = '_' + dataName;
-        file_namesMVC2.innerHTML += fileName + '<br><label for="MVC2ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MVC2ch1Name" name="MVC2ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MVC2ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MVC2ch2Name" name="MVC2ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
-        file_namesMVC2.innerHTML += '<br><label for="MVC2timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MVC2timestamp" name="MVC2timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MVC2eventMarker" name="MVC2eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
+        file_namesMVC2.innerHTML += fileName + '<br><label for="MVC2ch1Name">Channel 1' + ' :&emsp;</label><input type="text" id="MVC2ch1Name" name="ch1Name" value="' + columnPrefix + 'EMG_CH1_24BIT_CAL' + '" onclick="this.select()">&emsp;<label for="MVC2ch2Name">Channel 2' + ' :&emsp;</label><input type="text" id="MVC2ch2Name" name="ch2Name" value="' + columnPrefix + 'EMG_CH2_24BIT_CAL' + '" onclick="this.select()"><br />';
+        file_namesMVC2.innerHTML += '<br><label for="MVC2timestampName">Timestamps' + ' :&emsp;</label><input type="text" id="MVC2timestamp" name="timestampName" value="' + columnPrefix + 'TimestampSync_Unix_CAL' + '" onclick="this.select()">&emsp;<label for="Event Marker">Events' + ' :&emsp;</label><input type="text" id="MVC2eventMarker" name="eventMarker" value="' + columnPrefix + 'Event_Marker_CAL' + '"  onclick="this.select()"><br><br />';
         /*Channel names: are by the format 'MVC2ch1Name','MVC2ch2Name'
         Timestamp: 'MVC2timeStamp'
         Event Marker: 'MVC2eventMarker*/

@@ -22,13 +22,16 @@ def home(request):
         os.remove(csv_file)
 
     # After the POST, this checks that the user has submitted a file or files into the backend.
-    if request.method == 'POST' and request.FILES['csv-file']:
+    if request.method == 'POST' and ((request.FILES['MVC-file1'] and request.FILES['MG-file1']) or (request.FILES['MVC-file2'] or request.FILES['MG-file2'])):
         # Change the file and column name forms into more friendly datatypes
-        files = request.FILES.getlist('csv-file')
+
+
+        files = request.FILES
+
         channelNames = dict(request.POST.lists())
 
         # Loop through all submitted files and differentiates between their formats to read them.
-        for idx, file in enumerate(files):
+        for idx, filename in enumerate(files):
             # Names of the columns in the file being prepared for the contructor
             tags = {
                 'channelNames': [channelNames['ch1Name'][idx], channelNames['ch2Name'][idx]],
@@ -36,6 +39,10 @@ def home(request):
                 'eventName': channelNames['eventMarker'][idx]
             }
             # Contructing the EMGData object based on the input file type
+
+
+            file = request.FILES[filename]
+
             fileExtension = file.name.split('.')[1]
             if fileExtension == 'csv':
                 newData = EMGData.read_csv(file, **tags)
