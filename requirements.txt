@@ -1,0 +1,4 @@
+django
+pandas
+plotly
+scipy
