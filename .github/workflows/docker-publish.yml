@@ -1,4 +1,4 @@
-name: Docker Publish Arm32v7
+name: Docker Publish Latest
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -74,7 +74,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ghcr.io/eearchey/iron_handmaidens:arm32v7
+          tags: ghcr.io/eearchey/iron_handmaidens:latest
           labels: ${{ steps.meta.outputs.labels }}
 
       # Sign the resulting Docker image digest except on PRs.
