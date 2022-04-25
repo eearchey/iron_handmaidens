@@ -1,0 +1,19 @@
+name: Docker Image Builds
+
+on:
+  push:
+    branches: [ container ]
+  pull_request:
+    branches: [ container ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag iron_handmaidens:$(date +%s)
+      
