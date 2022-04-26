@@ -35,38 +35,36 @@
 <p><center>This application takes in a .csv or .mat file full of EMG data and processes the data to give the user a graphical visualization.</center></p>
 <br>
 
-<div>
-    <br><br>
-    <pre><h3>                                                                                                                       Flow of Data: </h3></pre>
-</div>
-
 <head>
     {% load static %} <!-- Prepare django to load static files -->
  </head>
  <body>
-     <img align="right" src={% static "Flowchart.png" %}>
+     <h3>Flow of Data</h3>
+     <img align="center" src={% static "Flowchart.png" %}>
  </body>
 
-
-<h5>Usage</h5>
-<p><b>Home Page</b> <br>
-    &nbsp;<i>Upload files</i><br>
-        &nbsp;&nbsp; Upload one or multiple .csv OR .mat files of EMG data. This will take you to the visualize page.<br>
-    &nbsp;<i>About page</i><br>
-        &nbsp;&nbsp;Go to the about page<br>
-    &nbsp;<i>Home page</i><br>
-        &nbsp;&nbsp;Go back to the beginning of the process<br><br>
-    
-<b>Visualize Page</b><br>
-    &nbsp;The data you uploaded will be presented in graphical form, along with certain important data points.<br>
-    &nbsp;The graphs can be manipulated as desired.<br>
-    &nbsp;You can also upload new data on this page.<br>
-    &nbsp;From the visualize page, you can also go to the about page or back to the home page.</p><br>
-<h5>Running Locally</h5>
-<p>To run this program locally, navigate to the iron_handmaidens folder with manage.py inside. From there, run the following command:<br>
-        &nbsp;&nbsp;<i>python3 manage.py runserver</i><br>
-    &nbsp;In the terminal, the local URL should be displayed. Paste this into your browser of choice (Chrome, Safari, etc.)<br>
-    &nbsp;You are now in the application!<br>
-</p>
+<div class="data">
+    <h5>Usage</h5>
+    <p><b>Home Page</b> <br>
+        &nbsp;<i>Upload files</i><br>
+            &nbsp;&nbsp; Upload one or two .csv OR .mat files of EMG data and the corresponding MVC file.
+            Then specify the sample rate, low pass, high pass and order (#).
+            This will take you to the visualize page.<br>
+        &nbsp;<i>About page</i><br>
+            &nbsp;&nbsp;Go to the about page<br>
+        &nbsp;<i>Home page</i><br>
+            &nbsp;&nbsp;Go back to the beginning of the process<br><br>
+        
+    <b>Visualize Page</b><br>
+        &nbsp;The data you uploaded will be presented in graphical form, along with certain important data points.<br>
+        &nbsp;The graphs can be manipulated as desired.<br>
+        &nbsp;You can also download the processed data as a csv file.<br>
+        &nbsp;From the visualize page, you can also go to the about page or back to the home page.</p><br>
+    <h5>Running Locally</h5>
+    <p>To run this program locally, navigate to the iron_handmaidens folder with manage.py inside. From there, run the following command:<br>
+            &nbsp;&nbsp;<i>python3 manage.py runserver</i><br>
+        &nbsp;In the terminal, the local URL should be displayed. Paste this into your browser of choice (Chrome, Safari, etc.)<br>
+        &nbsp;You are now in the application!<br>
+    </p>
 </div>
 {% endblock content %}
