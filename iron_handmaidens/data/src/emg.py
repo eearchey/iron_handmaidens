@@ -11,7 +11,7 @@ class EMGData:
 	Organize, process, and plot EMG data. Data is stored in a pandas DataFrame.
 	"""
 
-	def __init__(self, df, channelNames: list, timeName: str, eventName: str, frequency: float, maxDataPoints: int, windowTime: float) -> None:
+	def __init__(self, df, channelNames: list, timeName: str, eventName: str, frequency: float, maxDataPoints: int, windowTime: float,  min_max_list: list) -> None:
 		self.df = df
 
 		self.channelNames = channelNames
@@ -21,9 +21,10 @@ class EMGData:
 		self.frequency = frequency
 		self.maxDataPoints = int(maxDataPoints)
 		self.windowTime = windowTime
+		self.min_max_list = min_max_list
 
 	@classmethod
-	def read_csv(cls, csv: str or object, channelNames: list, timeName: str, eventName: str, frequency: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
+	def read_csv(cls, csv: str or object, channelNames: list, timeName: str, eventName: str,  min_max_list: list, frequency: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
 		"""
 		# Create EMGData object from a csv file.
 
@@ -51,10 +52,10 @@ class EMGData:
 		"""
 		df = pd.read_csv(csv)
 
-		return cls(df, channelNames, timeName, eventName, frequency, maxDataPoints, windowTime)
+		return cls(df, channelNames, timeName, eventName, frequency, maxDataPoints, windowTime, min_max_list)
 
 	@classmethod
-	def read_mat(cls, mat: str or object, channelNames: list, timeName: str, eventName: str, frequency: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
+	def read_mat(cls, mat: str or object, channelNames: list, timeName: str, eventName: str, min_max_list: list, frequency: float=1024, maxDataPoints: int=1000, windowTime: float=1) -> 'EMGData':
 		"""
 		# Create EMGData object from a mat file.
 
@@ -82,7 +83,7 @@ class EMGData:
 		"""
 		df = Converter().mat_to_df(mat).astype(float)
 
-		return cls(df, channelNames, timeName, eventName, frequency, maxDataPoints, windowTime)
+		return cls(df, channelNames, timeName, eventName, frequency, maxDataPoints, windowTime, min_max_list)
 
 	def copy(self) -> 'EMGData':
 		"""
@@ -104,7 +105,8 @@ class EMGData:
 						deepcopy(self.eventName),
 						frequency=deepcopy(self.frequency),
 						maxDataPoints=deepcopy(self.maxDataPoints),
-						windowTime=deepcopy(self.windowTime))
+						windowTime=deepcopy(self.windowTime),
+						min_max_list=deepcopy(self.min_max_list))
 
 	def __repr__(self) -> str:
 		"""The class represended as a string."""
@@ -228,7 +230,7 @@ class EMGData:
 			df = df.drop_duplicates(obj.timeName)
 
 		df = pd.merge(left, right, 'inner', left_on=self.timeName, right_on=other.timeName)
-		new = EMGData(df, self.channelNames + other.channelNames, self.timeName, self.eventName, self.frequency, self.maxDataPoints, self.windowTime)
+		new = EMGData(df, self.channelNames + other.channelNames, self.timeName, self.eventName, self.frequency, self.maxDataPoints, self.windowTime, self.min_max_list)
 
 		timestamps = new.find_columns(['Timestamp'])
 		try:
@@ -246,6 +248,18 @@ class EMGData:
 
 		return new
 
+	def min_max(self):
+
+		min_max_df = self.df[self.df[self.eventName] == 2]
+		colNames = self.channelNames
+		min_max_list = []
+
+		for col in colNames:
+			min = self.df[col].min()
+			max = self.df[col].max()
+			min_max_list.append((min, max))
+
+		return min_max_list
 
 	def RMS(self, colNames, slidingWindow):
 		"""
@@ -368,13 +382,19 @@ class EMGData:
 		if type(colNames) is not list:
 			colNames = [colNames]
 
+		count = 0
 		for col in colNames:
 			if col in originalChannels:
 				new[col] = self.df[col]
 			else:
-				max = self.df[col].max()
-				min = self.df[col].min()
+				if count % 2 == 0:
+					min, max = self.min_max_list[0]
+				else:
+					min, max = self.min_max_list[1]
+
 				new[col] = (self.df[col] - min) / (max - min)
+
+			count = count + 1
 
 		return new
 
@@ -396,8 +416,9 @@ class EMGData:
 		"""
 		columns = columns or self.channelNames
 
+		percentileTable = self.df[self.df[self.eventName] == 2]
 
-		percentileTable = self.df[columns].quantile(percentages)
+		percentileTable = percentileTable[columns].quantile(percentages)
 
 		percentileNames = []
 		for percentile in percentages:
@@ -531,7 +552,7 @@ class EMGData:
 
 		Parameters
 		---
-		
+
 		"""
 		self.df.to_csv(fileName)
 
@@ -554,6 +575,7 @@ class EMGData:
 		#Bandpass original Channels
 		newChannels = ['Bandpass (' + channel + ')' for channel in self.channelNames]
 		bandpassChannels = newChannels
+
 		new.df[newChannels] = new.bandpassing(self.channelNames)
 		new.channelNames += newChannels
 
@@ -567,6 +589,7 @@ class EMGData:
 		new.df[newChannels] = new.RMS(bandpassChannels, 100)
 		new.channelNames += newChannels
 
+		print(new.channelNames)
 		#Normalize all channels except original channels
 		new.channels = new.normalize(originalChannels)     #re-implement with MVC
 

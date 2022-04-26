@@ -22,24 +22,58 @@ def home(request):
         os.remove(csv_file)
 
     # After the POST, this checks that the user has submitted a file or files into the backend.
-    if request.method == 'POST' and ((request.FILES['MVC-file1'] and request.FILES['MG-file1']) or (request.FILES['MVC-file2'] or request.FILES['MG-file2'])):
+    if request.method == 'POST':
         # Change the file and column name forms into more friendly datatypes
 
-
         files = request.FILES
+        filelist = []
+        for idx, filename in enumerate(files):
+            filelist.append(filename)
+
+        if 'MG-file1' in filelist:
+            try:
+                request.FILES['MVC-file1']
+            except:
+                print('missing mvc file')
+                return redirect('data-error')
+
+        if 'MG-file2' in filelist:
+            try:
+                request.FILES['MVC-file2']
+            except:
+                print('missing mvc file')
+                return redirect('data-error')
+
+        print(len(files))
+
 
         channelNames = dict(request.POST.lists())
 
         # Loop through all submitted files and differentiates between their formats to read them.
         for idx, filename in enumerate(files):
+            print(idx, filename)
             if filename.startswith('MVC'):
-                print(filename)
                 continue
+
+            if filename.endswith('1'):
+                suffix = '1'
+
             # Names of the columns in the file being prepared for the contructor
             tags = {
                 'channelNames': [channelNames['ch1Name'][idx], channelNames['ch2Name'][idx]],
                 'timeName': channelNames['timestampName'][idx],
-                'eventName': channelNames['eventMarker'][idx]
+                'eventName': channelNames['eventMarker'][idx],
+                'min_max_list': [(0, 1), (0, 1)]
+            }
+            if len(files) > 2:
+                mvc_idx = idx - 2
+            else:
+                mvc_idx = idx - 1
+            mvc_tags = {
+                'channelNames': [channelNames['ch1Name'][mvc_idx], channelNames['ch2Name'][mvc_idx]],
+                'timeName': channelNames['timestampName'][mvc_idx],
+                'eventName': channelNames['eventMarker'][mvc_idx],
+                'min_max_list': [(0, 1), (0, 1)]
             }
             # Contructing the EMGData object based on the input file type
 
@@ -52,6 +86,7 @@ def home(request):
             file = request.FILES[filename]
             mvc_file = request.FILES[mvc_filename]
 
+
             fileExtension = file.name.split('.')[1]
             mvc_fileExtension = mvc_file.name.split('.')[1]
 
@@ -61,9 +96,12 @@ def home(request):
                 newData = EMGData.read_mat(file, **tags)
 
             if mvc_fileExtension == 'csv':
-                mvc_Data = EMGData.read_csv(mvc_file, **tags)
+                mvc_Data = EMGData.read_csv(mvc_file, **mvc_tags)
             elif mvc_fileExtension == 'mat':
-                mvc_Data = EMGData.read_mat(mvc_file, **tags)
+                mvc_Data = EMGData.read_mat(mvc_file, **mvc_tags)
+            min_max_list = mvc_Data.min_max()
+            newData.min_max_list = min_max_list
+            print(newData.min_max_list)
 
             # Storing the EMGData
             if not data:
@@ -97,7 +135,6 @@ def visualize(request):
         plts = []
         files = []
         for i, dataset in enumerate(data):
-            print('visualize')
             tables.append(dataset.percentiles().to_html(justify='center', index=False))
             preprocessed = dataset.preprocess()
             plts.append(preprocessed.data_to_html(visible=preprocessed.find_columns(['RMS']), eventMarkers=preprocessed.eventName))
