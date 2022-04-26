@@ -44,14 +44,12 @@ def home(request):
                 print('missing mvc file')
                 return redirect('data-error')
 
-        print(len(files))
 
 
         channelNames = dict(request.POST.lists())
 
         # Loop through all submitted files and differentiates between their formats to read them.
         for idx, filename in enumerate(files):
-            print(idx, filename)
             if filename.startswith('MVC'):
                 continue
 
@@ -101,11 +99,9 @@ def home(request):
                 mvc_Data = EMGData.read_mat(mvc_file, **mvc_tags)
             min_max_list = mvc_Data.min_max()
             newData.min_max_list = min_max_list
-            print(newData.min_max_list)
 
             # Storing the EMGData
             if not data:
-                print('EMG')
                 data.append(newData)
             else:
                 try:
@@ -150,7 +146,7 @@ def visualize(request):
 def download_zip(request):
     try:
         global files
-        print(files)
+
         for file in files:
             file[1].data_to_csv(file[0])
         with zipfile.ZipFile('data.zip', 'w') as zipMe:

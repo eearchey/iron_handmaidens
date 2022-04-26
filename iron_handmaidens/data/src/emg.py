@@ -478,7 +478,7 @@ class EMGData:
 			Plotly express figure containing the EMG data. Data is sampled based on the maximum number of data points allowed.
 		"""
 		x =  x or self.timeName
-		y = y or self.find_columns(['RMS', 'Moving Average', 'CH', 'Bandpass'])
+		y = y or self.find_columns(['CH'])
 
 		fig = go.Figure()
 
