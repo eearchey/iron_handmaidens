@@ -9,7 +9,7 @@ Emily Archey, Josh Hourigan, Sean Macander, Alden Moreton, Vyas Padmanabhan
 ### Project Goals
 1. Have users upload their data via a web interface.
 2. Deliver data visualization to the Iron Hand PhD team.
-3. Stretch: Use ML to predict circumstances under which data was collected (i.e. temperature, presence of Iron Hand).
+3. Allow users to download processed data as a .csv.
 
 ### Approach
 1. User goes to the Iron Handmaidens website.
